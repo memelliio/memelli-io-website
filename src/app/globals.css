@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --ink: 0 0% 9%;
+  --muted: 0 0% 45%;
+  --line: 0 0% 90%;
+  --line-soft: 0 0% 95%;
+  --paper: 0 0% 99%;
+  --soft: 0 0% 97%;
+}
+
+html, body { margin: 0; padding: 0; }
+* { box-sizing: border-box; }
