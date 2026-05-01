@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PartnersPanel } from '../../../components/modules/PartnersPanel';
+import { PartnersPanel } from '@/components/modules/PartnersPanel';
 
 // ── Program tabs ──────────────────────────────────────────────────────────────
 
