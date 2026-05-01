@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2017",
     "module": "esnext",
@@ -10,7 +9,14 @@
       "dom.iterable",
       "esnext"
     ],
-    "incremental": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
     "plugins": [
       {
         "name": "next"
@@ -20,10 +26,7 @@
       "@/*": [
         "./src/*"
       ]
-    },
-    "allowJs": true,
-    "noEmit": true,
-    "isolatedModules": true
+    }
   },
   "include": [
     "next-env.d.ts",
