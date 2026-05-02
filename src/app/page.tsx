@@ -13,8 +13,11 @@ import { SignInTab } from "./_components/SignInTab";
 import { BusinessCenter } from "./_components/BusinessCenter";
 import { useWindowStore } from "./_lib/window-store";
 import { useOsMode } from "./_lib/os-mode-store";
+import { useSessionContextPublisher } from "./_lib/session-context-publisher";
 
 export default function OsPage() {
+  // M6 — publish session_context for MelliBar awareness.
+  useSessionContextPublisher();
   const windows = useWindowStore((s) => s.windows);
   const mode = useOsMode((s) => s.mode);
   // Mode drives surface — same for anon and logged-in. BC populates with

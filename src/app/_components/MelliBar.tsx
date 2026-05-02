@@ -1,7 +1,5 @@
 "use client";
 
-
-import { PartnerLogo } from "@/app/_components/PartnerLogo";
 import { useEffect, useRef, useState } from "react";
 import { Tv, Radio, Settings as Cog } from "lucide-react";
 import { WaveBar } from "./WaveBar";
@@ -10,19 +8,102 @@ import { useBarConfig } from "../_lib/bar-config-store";
 
 type Mode = "idle" | "listening" | "thinking" | "speaking";
 
-const DEMO_HEARD = [
-  "open my pipeline",
-  "schedule a call for tomorrow",
-  "what's my balance",
-  "show credit reports",
-  "draft a follow-up",
-];
+// MelliBar M4 — wires browser SpeechRecognition (STT) + DashScope CosyVoice (TTS)
+// to the deterministic intent matcher (M3) + dispatcher (M5) + Groq fallback (M8).
 
-const STATE_CYCLE: { mode: Mode; ms: number }[] = [
-  { mode: "listening", ms: 1800 },
-  { mode: "thinking", ms: 900 },
-  { mode: "speaking", ms: 1900 },
-];
+interface RuntimeContextRef {
+  user_id: string | null;
+  partner_id: string | null;
+  persona: { name?: string; greeting?: string; brand_color?: string } | null;
+}
+
+function getCurrentUserId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const w = window as unknown as { __memelliUserId?: string };
+    if (w.__memelliUserId) return w.__memelliUserId;
+    const t = localStorage.getItem("memelli_token");
+    if (!t) return null;
+    // JWTs are header.payload.signature
+    const parts = t.split(".");
+    if (parts.length !== 3) return null;
+    const json = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return json?.sub ?? json?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function getPartnerId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const host = window.location.hostname;
+    // key2debtfree.memelli.io → partner slug
+    const m = host.match(/^([^.]+)\.memelli\.io$/);
+    if (m && m[1] && m[1] !== "www" && m[1] !== "memelli") {
+      return m[1];
+    }
+  } catch {
+    /* */
+  }
+  return null;
+}
+
+interface SpeechRecognitionLike {
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult:
+    | ((e: { results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void)
+    | null;
+  onerror: ((e: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
+function getSpeechRecognition(): SpeechRecognitionLike | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as {
+    SpeechRecognition?: new () => SpeechRecognitionLike;
+    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+  };
+  const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = false;
+  r.lang = "en-US";
+  return r;
+}
+
+async function speak(text: string): Promise<void> {
+  if (!text) return;
+  // Try server TTS first; fall back to browser SpeechSynthesis
+  try {
+    const r = await fetch("/api/melli/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (r.ok) {
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      await audio.play();
+      audio.onended = () => URL.revokeObjectURL(url);
+      return;
+    }
+  } catch {
+    /* fall through */
+  }
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.05;
+    window.speechSynthesis.speak(u);
+  }
+}
 
 export function MelliBar() {
   const open = useWindowStore((s) => s.open);
@@ -39,18 +120,43 @@ export function MelliBar() {
   const [inCall, setInCall] = useState(false);
   const [mode, setMode] = useState<Mode>("idle");
   const [lastHeard, setLastHeard] = useState("");
-  const cycleRef = useRef<number | null>(null);
+  const [lastReply, setLastReply] = useState("");
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const runtimeRef = useRef<RuntimeContextRef>({
+    user_id: null,
+    partner_id: null,
+    persona: null,
+  });
 
-  // Wait one frame before reading persisted bar-config so SSR + client hydration
-  // match — otherwise the bar momentarily renders with defaults then snaps to
-  // the persisted values, looking like a double render.
   useEffect(() => {
     setHydrated(true);
+    runtimeRef.current.user_id = getCurrentUserId();
+    runtimeRef.current.partner_id = getPartnerId();
+    // Load persona
+    const partnerParam = runtimeRef.current.partner_id
+      ? `?partner_id=${encodeURIComponent(runtimeRef.current.partner_id)}`
+      : "";
+    fetch(`/api/melli/persona${partnerParam}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (j?.persona) runtimeRef.current.persona = j.persona;
+      })
+      .catch(() => {});
   }, []);
 
-  // memelli:bar:guide-me listener — fired by per-module CTAs (e.g. PreQual's
-  // "Let Melli guide you" pill). Marks the active module + opens the bar in
-  // listening state so Melli can walk the user through the flow.
+  // Connect SSE stream — fold incoming session_context into runtime
+  useEffect(() => {
+    const uid = runtimeRef.current.user_id;
+    if (!uid) return;
+    const ev = new EventSource(`/api/melli/stream?user_id=${encodeURIComponent(uid)}`);
+    ev.addEventListener("session_context", () => {
+      // No-op — just keeping the channel open. Server-side reads on each
+      // intent call already pull the freshest context from kernel_objects.
+    });
+    return () => ev.close();
+  }, [hydrated]);
+
+  // memelli:bar:guide-me listener — fired by per-module CTAs
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ module?: string }>).detail;
@@ -66,50 +172,273 @@ export function MelliBar() {
     return () => window.removeEventListener("memelli:bar:guide-me", handler as EventListener);
   }, []);
 
-  // Expose window.__memelliSend so any module can post a user utterance into
-  // the bar's chat queue. Cleaned up on unmount. Falls through to the bar's
-  // existing in-call cycle until the actual chat backend is wired.
+  // Main loop — when inCall toggles on, start listening.
+  useEffect(() => {
+    if (!inCall) {
+      setMode("idle");
+      setLastHeard("");
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {
+          /* */
+        }
+        recognitionRef.current = null;
+      }
+      return;
+    }
+    let cancelled = false;
+
+    const runOnce = async (transcript: string) => {
+      if (cancelled) return;
+      setLastHeard(transcript);
+      setMode("thinking");
+      const uid = runtimeRef.current.user_id;
+      if (!uid) {
+        setLastReply("Sign in first.");
+        await speak("Please sign in first.");
+        setMode("idle");
+        return;
+      }
+
+      // Persist user message
+      try {
+        await fetch("/api/melli/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: uid, role: "user", content: transcript }),
+        });
+      } catch {
+        /* */
+      }
+
+      // 1. Intent
+      let intent: {
+        command?: { name: string; handler_name: string; module_id: string; params: Record<string, string> };
+        needs_llm?: boolean;
+        reason?: string;
+        partial_match?: { name?: string; params?: Record<string, string>; missing?: string[] };
+      } = {};
+      try {
+        const ir = await fetch("/api/melli/intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: uid, transcript }),
+        });
+        intent = await ir.json();
+      } catch (e) {
+        void e;
+        intent = { needs_llm: true, reason: "intent_route_error" };
+      }
+
+      let speakText = "";
+      let actionDescriptor: {
+        type: string;
+        appId?: string;
+        event?: string;
+        detail?: Record<string, unknown>;
+        href?: string;
+        reason?: string;
+      } | null = null;
+
+      if (intent.command) {
+        // 2a. Deterministic dispatch
+        try {
+          const dr = await fetch("/api/melli/dispatch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: uid, command: intent.command }),
+          });
+          const dj = (await dr.json()) as {
+            ok: boolean;
+            speak?: string;
+            action?: typeof actionDescriptor;
+            error?: string;
+          };
+          speakText = dj.speak ?? "";
+          actionDescriptor = dj.action ?? null;
+        } catch (e) {
+          void e;
+          speakText = "Couldn't dispatch that.";
+        }
+      } else if (intent.needs_llm) {
+        // 2b. Groq fallback
+        try {
+          const fr = await fetch("/api/melli/fallback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: uid,
+              transcript,
+              reason: intent.reason,
+              partial_match: intent.partial_match,
+            }),
+          });
+          const fj = (await fr.json()) as {
+            ok: boolean;
+            speak?: string;
+            command?: { name: string; params: Record<string, string> };
+            via?: string;
+          };
+          if (fj.command) {
+            // Groq returned a structured command — re-dispatch
+            const cmdRows = await fetch("/api/melli/intent", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: uid, transcript: `__cmd:${fj.command.name}` }),
+            });
+            void cmdRows;
+            // Best-effort: invoke dispatch with the command Groq returned, looking up handler from registry.
+            // The simplest path is a follow-up POST through /api/melli/dispatch with name + handler stub.
+            speakText = "On it.";
+            // We open the module by name match as the open_window
+            actionDescriptor = {
+              type: "open_window",
+              appId: (fj.command.params?.module_id ?? fj.command.name.split(".")[0]) as string,
+            };
+          } else {
+            speakText = fj.speak ?? "I'm not sure how to help with that.";
+          }
+        } catch (e) {
+          void e;
+          speakText = "Reasoning engine unreachable.";
+        }
+      } else {
+        speakText = "I didn't catch that.";
+      }
+
+      // 3. Apply action
+      if (actionDescriptor) {
+        const a = actionDescriptor;
+        if (a.type === "open_window" && a.appId) {
+          open(a.appId as Parameters<typeof open>[0]);
+        } else if (a.type === "open_window_then_event" && a.appId && a.event) {
+          open(a.appId as Parameters<typeof open>[0]);
+          window.dispatchEvent(new CustomEvent(a.event, { detail: a.detail ?? {} }));
+        } else if (a.type === "navigate" && a.href) {
+          window.location.href = a.href;
+        }
+      }
+
+      // 4. Persist assistant message
+      try {
+        await fetch("/api/melli/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: uid,
+            role: "assistant",
+            content: speakText,
+            source: intent.command ? "deterministic" : "groq",
+          }),
+        });
+      } catch {
+        /* */
+      }
+
+      // 5. Speak
+      setLastReply(speakText);
+      setMode("speaking");
+      await speak(speakText);
+      if (cancelled) return;
+      setMode("idle");
+    };
+
+    const startListen = () => {
+      if (cancelled) return;
+      const r = getSpeechRecognition();
+      if (!r) {
+        // Browser doesn't support STT — fall back to text via window.__memelliSend
+        return;
+      }
+      recognitionRef.current = r;
+      r.onresult = (e) => {
+        const last = e.results[e.results.length - 1];
+        if (last && last.isFinal) {
+          const transcript = String(last[0].transcript || "").trim();
+          if (transcript) {
+            void runOnce(transcript);
+          }
+        }
+      };
+      r.onerror = () => {
+        setMode("idle");
+      };
+      r.onend = () => {
+        // Restart listening if still in a call and not currently thinking/speaking
+        if (!cancelled && inCall && mode !== "thinking" && mode !== "speaking") {
+          setTimeout(() => {
+            if (!cancelled && inCall) startListen();
+          }, 400);
+        }
+      };
+      try {
+        r.start();
+        setMode("listening");
+      } catch {
+        /* */
+      }
+    };
+
+    startListen();
+    return () => {
+      cancelled = true;
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {
+          /* */
+        }
+        recognitionRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inCall]);
+
+  // Expose window.__memelliSend so any module can post a user utterance
   useEffect(() => {
     const win = window as unknown as { __memelliSend?: (text: string) => void };
     win.__memelliSend = (text: string) => {
-      setLastHeard(text);
       setInCall(true);
+      // Same path as voice — feed into intent matcher
+      const uid = runtimeRef.current.user_id;
+      if (!uid) return;
+      void (async () => {
+        setLastHeard(text);
+        setMode("thinking");
+        const ir = await fetch("/api/melli/intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: uid, transcript: text }),
+        });
+        const ij = await ir.json();
+        if (ij.command) {
+          const dr = await fetch("/api/melli/dispatch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: uid, command: ij.command }),
+          });
+          const dj = await dr.json();
+          if (dj.action?.appId && dj.action.type === "open_window") open(dj.action.appId);
+          if (dj.action?.appId && dj.action.type === "open_window_then_event") {
+            open(dj.action.appId);
+            window.dispatchEvent(new CustomEvent(dj.action.event, { detail: dj.action.detail ?? {} }));
+          }
+          setLastReply(dj.speak ?? "");
+          setMode("speaking");
+          void speak(dj.speak ?? "");
+          setTimeout(() => setMode("idle"), 800);
+        } else {
+          setMode("idle");
+        }
+      })();
     };
     return () => {
       delete win.__memelliSend;
     };
-  }, []);
-
-  useEffect(() => {
-    if (!inCall) {
-      if (cycleRef.current != null) window.clearTimeout(cycleRef.current);
-      setMode("idle");
-      setLastHeard("");
-      return;
-    }
-    let i = 0;
-    let h = 0;
-    const tick = () => {
-      const step = STATE_CYCLE[i % STATE_CYCLE.length];
-      setMode(step.mode);
-      if (step.mode === "listening") {
-        setLastHeard(DEMO_HEARD[h % DEMO_HEARD.length]);
-        h++;
-      }
-      cycleRef.current = window.setTimeout(() => {
-        i++;
-        tick();
-      }, step.ms);
-    };
-    tick();
-    return () => {
-      if (cycleRef.current != null) window.clearTimeout(cycleRef.current);
-    };
-  }, [inCall]);
+  }, [open]);
 
   const engage = () => {
-    // Open the Memelli Terminal window (iframe to /memelli-terminal)
-    // and toggle the call/visualizer state.
     open("memelli-terminal");
     setInCall((v) => !v);
   };
@@ -226,7 +555,18 @@ export function MelliBar() {
             minWidth: 0,
           }}
         >
-          <PartnerLogo alt="Memelli" style={{ height: 64, width: "auto", objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 1px 6px rgba(196,30,58,0.25))" }} />
+          <img
+            src="/os/brand/memelli-logo-white.png"
+            alt="Memelli"
+            style={{
+              height: 64,
+              width: "auto",
+              objectFit: "contain",
+              flexShrink: 0,
+              filter: "drop-shadow(0 1px 6px rgba(196,30,58,0.25))",
+            }}
+            draggable={false}
+          />
           {inCall && (
             <span
               style={{
@@ -268,6 +608,20 @@ export function MelliBar() {
               &ldquo;{lastHeard}&rdquo;
             </span>
           )}
+          {lastReply && !inCall && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "rgba(255,255,255,0.45)",
+                maxWidth: 360,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {lastReply}
+            </span>
+          )}
         </div>
 
         {/* CENTER — engage button */}
@@ -307,7 +661,12 @@ export function MelliBar() {
           }}
         >
           {showLogo && (
-            <PartnerLogo alt="" style={{ height: 22, width: "auto" }} />
+            <img
+              src="/os/brand/memelli-logo-white.png"
+              alt=""
+              draggable={false}
+              style={{ height: 22, width: "auto" }}
+            />
           )}
           {showText && <span>{inCall ? "End Call" : "Let Memelli Guide Me"}</span>}
         </button>
