@@ -9,6 +9,7 @@ import {
   Stagger,
   Typewriter,
 } from "@/components/anim";
+import { useIsMobileSurface } from "../_lib/viewport-preview-store";
 
 type SlideId = "funding" | "credit" | "workspace";
 
@@ -82,6 +83,10 @@ export function WelcomeBanner() {
     }, 320);
   };
 
+  // Hooks must run before any early return — keep this call above the
+  // visibility guard or React throws "Rendered fewer hooks than expected".
+  const narrow = useIsMobileSurface();
+
   if (!visible) return null;
   const slide = SLIDES[index];
 
@@ -90,16 +95,19 @@ export function WelcomeBanner() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       style={{
-        position: "fixed",
+        position: "absolute",
         left: "50%",
         top: "50%",
-        width: "clamp(640px, 60vw, 980px)",
-        height: "clamp(420px, 56vh, 600px)",
+        // Width: clamp to parent. When parent is small (phone preview /
+        // mobile), this naturally shrinks. When wide, caps at 980.
+        width: "min(calc(100% - 24px), 980px)",
+        height: narrow ? "auto" : "min(calc(100% - 140px), 600px)",
+        maxHeight: narrow ? "calc(100% - 140px)" : "calc(100% - 80px)",
         transform: `translate(-50%, -50%) ${leaving ? "scale(0.96)" : "scale(1)"}`,
         opacity: leaving ? 0 : 1,
         zIndex: 9000,
         borderRadius: 18,
-        overflow: "hidden",
+        overflow: narrow ? "auto" : "hidden",
         boxShadow:
           "0 40px 80px -20px rgba(15,17,21,0.45), 0 12px 32px -8px rgba(196,30,58,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)",
         background: slide.accent,
@@ -107,7 +115,8 @@ export function WelcomeBanner() {
         transition: "opacity 320ms ease, transform 320ms ease",
         willChange: "transform, opacity",
         display: "grid",
-        gridTemplateColumns: "1.05fr 1fr",
+        gridTemplateColumns: narrow ? "1fr" : "1.05fr 1fr",
+        gridTemplateRows: narrow ? "auto auto" : "1fr",
       }}
     >
       <span
@@ -149,11 +158,11 @@ export function WelcomeBanner() {
       <div
         style={{
           position: "relative",
-          padding: "36px 32px",
+          padding: narrow ? "22px 18px 16px" : "36px 32px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          gap: 16,
+          gap: narrow ? 11 : 16,
           zIndex: 1,
         }}
       >
@@ -194,9 +203,9 @@ export function WelcomeBanner() {
         <FadeIn delay={180} distance={8}>
           <h2
             style={{
-              fontSize: "clamp(24px, 2.4vw, 36px)",
+              fontSize: narrow ? 21 : "clamp(24px, 2.4vw, 36px)",
               fontWeight: 800,
-              lineHeight: 1.08,
+              lineHeight: 1.1,
               letterSpacing: "-0.02em",
               margin: 0,
             }}
@@ -208,9 +217,9 @@ export function WelcomeBanner() {
         <FadeIn delay={320}>
           <p
             style={{
-              fontSize: 14.5,
-              lineHeight: 1.55,
-              maxWidth: 360,
+              fontSize: narrow ? 13 : 14.5,
+              lineHeight: 1.5,
+              maxWidth: narrow ? "100%" : 360,
               color: "rgba(255,255,255,0.85)",
               margin: 0,
             }}
@@ -223,16 +232,17 @@ export function WelcomeBanner() {
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: 14,
-              marginTop: 6,
+              flexDirection: narrow ? "column" : "row",
+              alignItems: narrow ? "stretch" : "center",
+              gap: narrow ? 10 : 14,
+              marginTop: 4,
             }}
           >
             <button
               type="button"
               onClick={() => dismiss(slide.appId)}
               style={{
-                padding: "12px 22px",
+                padding: narrow ? "12px 20px" : "12px 22px",
                 borderRadius: 9999,
                 background: PAPER,
                 color: "#0F1115",
@@ -243,12 +253,19 @@ export function WelcomeBanner() {
                 cursor: "pointer",
                 boxShadow: "0 6px 20px -4px rgba(0,0,0,0.35)",
                 fontFamily: "inherit",
+                width: narrow ? "100%" : undefined,
               }}
             >
               {slide.cta}
             </button>
 
-            <div style={{ display: "flex", gap: 6 }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                justifyContent: narrow ? "center" : "flex-start",
+              }}
+            >
               {SLIDES.map((s, i) => (
                 <button
                   key={s.id}
@@ -279,18 +296,19 @@ export function WelcomeBanner() {
         key={slide.id}
         style={{
           position: "relative",
-          padding: "32px 32px",
+          padding: narrow ? "14px 18px 22px" : "32px 32px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          gap: 14,
+          gap: narrow ? 10 : 14,
           zIndex: 1,
-          borderLeft: "1px solid rgba(255,255,255,0.08)",
+          borderTop: narrow ? "1px solid rgba(255,255,255,0.10)" : undefined,
+          borderLeft: narrow ? undefined : "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {slide.id === "funding" && <FundingVisual />}
-        {slide.id === "credit" && <CreditVisual />}
-        {slide.id === "workspace" && <WorkspaceVisual />}
+        {slide.id === "funding" && <FundingVisual narrow={narrow} />}
+        {slide.id === "credit" && <CreditVisual narrow={narrow} />}
+        {slide.id === "workspace" && <WorkspaceVisual narrow={narrow} />}
       </div>
     </div>
   );
@@ -300,7 +318,7 @@ export function WelcomeBanner() {
 // Per-slide visuals
 // ─────────────────────────────────────────────────────────────────────
 
-function FundingVisual() {
+function FundingVisual({ narrow = false }: { narrow?: boolean }) {
   return (
     <>
       <FadeIn delay={120}>
@@ -319,7 +337,7 @@ function FundingVisual() {
       </FadeIn>
       <div
         style={{
-          fontSize: "clamp(56px, 8vw, 96px)",
+          fontSize: narrow ? 44 : "clamp(56px, 8vw, 96px)",
           fontWeight: 900,
           letterSpacing: "-0.06em",
           lineHeight: 0.9,
@@ -409,9 +427,10 @@ function FundingVisual() {
   );
 }
 
-function CreditVisual() {
+function CreditVisual({ narrow = false }: { narrow?: boolean }) {
   const baseDelay = 250;
   const lineGap = 320;
+  const _narrow = narrow; // narrow tightens internal padding/font; lines stay legible
   return (
     <>
       <FadeIn delay={120}>
@@ -424,7 +443,7 @@ function CreditVisual() {
             borderBottom: "1px solid rgba(255,255,255,0.10)",
           }}
         >
-          <Terminal size={13} color="var(--brand-color, #C41E3A)" />
+          <Terminal size={13} color="#C41E3A" />
           <span
             style={{
               fontFamily: MONO,
@@ -482,7 +501,7 @@ function CreditVisual() {
         <CreditLine
           ts="14:02:13"
           tag="FLAG"
-          tagColor="var(--brand-color, #C41E3A)"
+          tagColor="#C41E3A"
           text="3 collections, 1 late, 1 charge-off"
           delay={baseDelay + 1 * lineGap}
         />
@@ -551,7 +570,7 @@ function CreditVisual() {
                 />
               </>
             }
-            tone="var(--brand-color, #C41E3A)"
+            tone="#C41E3A"
           />
         </div>
       </FadeIn>
@@ -656,7 +675,7 @@ function RepairChip({
   );
 }
 
-function WorkspaceVisual() {
+function WorkspaceVisual({ narrow = false }: { narrow?: boolean }) {
   const tiles = [
     { label: "CRM", n: 28 },
     { label: "Funding", n: 7 },
@@ -684,7 +703,7 @@ function WorkspaceVisual() {
       <FadeIn delay={220}>
         <div
           style={{
-            fontSize: "clamp(36px, 5vw, 56px)",
+            fontSize: narrow ? 32 : "clamp(36px, 5vw, 56px)",
             fontWeight: 900,
             letterSpacing: "-0.04em",
             lineHeight: 0.95,
