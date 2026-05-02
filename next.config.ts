@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Legacy /admin.html links rewrite to /admin (the App Router page route).
+  async rewrites() {
+    return [
+      { source: '/admin.html', destination: '/admin' },
+    ];
+  },
 };
 
 export default nextConfig;
