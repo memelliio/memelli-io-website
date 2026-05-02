@@ -55,15 +55,9 @@ function centerPosition(w: number, h: number, i: number) {
 }
 
 const DEFAULT_PINS = [
-  "crm",
-  "funding",
-  "credit-reports",
-  "phone",
-  "messages",
-  "memelli-chat",
-  "calendar",
-  "workflow-builder",
-  "storefront",
+  "memelli-terminal",
+  "tv",
+  "radio",
 ];
 
 // Single default panel — "Home". User splits into more panels via Add panel.
@@ -73,10 +67,10 @@ const ALL_DEFAULT_APPS: string[] = [
   "companies", "deals", "pipelines", "storefront", "revenue-builder",
   "docuvault", "billing",
   // Communications
-  "phone", "video-conference", "messages", "memelli-chat", "voicemail", "social",
+  "phone", "video-conference", "messages", "memelli-terminal", "voicemail", "social",
   // Productivity & Media
   "workflow-builder", "calendar", "bookings", "notes", "reports", "seo",
-  "code", "photos", "tv", "radio",
+  "photos", "tv", "music", "radio",
   // System
   "wallet", "trading", "lockmail", "vpn", "ugc-factory",
 ];
@@ -330,7 +324,7 @@ export const useWindowStore = create<Store>()(
     }),
     {
       name: "memelli-os-store",
-      version: 3,
+      version: 6,
       migrate: (raw, version) => {
         const v = (raw ?? {}) as Partial<Store>;
         const out: Partial<Store> = { ...v };
@@ -362,19 +356,35 @@ export const useWindowStore = create<Store>()(
           out.panelWidths = Array.from({ length: len }, () => 1 / len);
         }
         if (typeof v.currentPage !== "number") out.currentPage = 0;
-        if (!Array.isArray(v.pins) || v.pins.length === 0)
-          out.pins = DEFAULT_PINS;
+        // Force pins to canonical default ALWAYS, regardless of version.
+        // Operator wants memelli-terminal first, tv, radio — this guarantees
+        // the order across stale localStorage.
+        out.pins = DEFAULT_PINS;
+        if (Array.isArray(out.pages)) {
+          out.pages = out.pages.map((page) =>
+            page.map((id) => (id === "memelli-chat" ? "memelli-terminal" : id)),
+          );
+        }
         void version;
         return out as Store;
       },
       partialize: (s) => ({
-        pins: s.pins,
+        // Pins intentionally NOT persisted — always start from DEFAULT_PINS
+        // so operator-locked order (memelli-terminal · tv · radio) holds.
         pages: s.pages,
         pageLabels: s.pageLabels,
         panelSettings: s.panelSettings,
         panelWidths: s.panelWidths,
         currentPage: s.currentPage,
       }),
+      // Force-reset pins after every rehydrate. Old persisted blobs may still
+      // contain stale ids ("memelli-chat") or extra entries that would
+      // overwrite the canonical default. This guarantees a clean slate.
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.pins = DEFAULT_PINS;
+        }
+      },
     },
   ),
 );

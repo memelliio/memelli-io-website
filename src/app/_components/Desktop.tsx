@@ -1,6 +1,12 @@
 "use client";
 
-import { Plus, X as XIcon, Pencil, Check } from "lucide-react";
+import {
+  Plus,
+  X as XIcon,
+  Pencil,
+  Check,
+  ChevronDown,
+} from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { APPS } from "../_apps/registry";
 import { useWindowStore } from "../_lib/window-store";
@@ -9,10 +15,62 @@ import {
   wallpaperBackground,
 } from "../_lib/os-config-store";
 import { useOsMode } from "../_lib/os-mode-store";
+import { useAuth } from "@/contexts/auth";
+import { getPitch, type ModulePitch } from "../_lib/module-pitches";
+import { ModulePitchModal } from "./ModulePitchModal";
+
+// Apps visible BEFORE login — entry-point customer flow only.
+const ANON_ALLOWED = new Set([
+  "signup",
+  "pre-qualification",
+  "credit-repair",
+  "credit",
+  "credit-reports",
+  "funding",
+  "welcome",
+]);
+
+// Sub-steps per app — shown when the operator clicks the expand chevron
+// on an icon. Each step is clickable to jump straight to that step.
+const APP_STEPS: Record<string, string[]> = {
+  "pre-qualification": [
+    "Welcome",
+    "Email & Phone",
+    "Create Password",
+    "Soft-Pull Credit",
+    "See Your Numbers",
+  ],
+  funding: [
+    "Pre-Qualify",
+    "Application",
+    "Underwriting",
+    "Approval",
+    "Funded",
+  ],
+  "credit-repair": [
+    "Pull Reports",
+    "Select Items",
+    "Generate Letters",
+    "Send Disputes",
+    "Track Responses",
+  ],
+  "credit-reports": [
+    "Connect SmartCredit",
+    "View Live Scores",
+    "Side-by-Side Bureaus",
+    "Download PDF",
+  ],
+};
+
+// Tasks-due count per app (mock — replace with live signal later).
+// First-time users see PreQual flagged with 1 outstanding task.
+const TASKS_DUE: Record<string, number> = {
+  "pre-qualification": 1,
+};
 
 const APP_MIME = "application/memelli-app-id";
 
-export function Desktop() {
+export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
   const open = useWindowStore((s) => s.open);
   const pages = useWindowStore((s) => s.pages);
   const pageLabels = useWindowStore((s) => s.pageLabels);
@@ -26,13 +84,14 @@ export function Desktop() {
   const showLabels = useOsConfig((s) => s.showLabels);
   const showBadges = useOsConfig((s) => s.showBadges);
   const wallpaperStyle = useOsConfig((s) => s.wallpaperStyle);
-  const scrollSpeedMul = useOsConfig((s) => s.scrollSpeedMul);
+  // scrollSpeedMul intentionally unread — native wheel scroll handles flow now.
   const accentColor = useOsConfig((s) => s.accentColor);
   const cornerRadius = useOsConfig((s) => s.cornerRadius);
 
   const [hydrated, setHydrated] = useState(false);
   const [draggingAppId, setDraggingAppId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<number | null>(null);
+  const [pitch, setPitch] = useState<ModulePitch | null>(null);
 
   useEffect(() => {
     setHydrated(true);
@@ -57,19 +116,25 @@ export function Desktop() {
   };
 
   const mode = useOsMode((s) => s.mode);
-  const inMode = (id: string) => {
+  const { user } = useAuth();
+
+  // Visibility:
+  //   • Anonymous (no user)        → ALL icons (no mode filter, full surface)
+  //   • Logged-in                  → current mode filter (Personal vs Business)
+  // Pitch-modal gates which apps actually OPEN for an anon user.
+  const allowed = (id: string): boolean => {
     const a = APPS.find((x) => x.id === id);
     if (!a) return false;
     if (a.category === "hidden") return false;
-    if (!a.modes || a.modes.length === 0) return true; // both
+    if (!user) return true; // anon sees everything
+    if (!a.modes || a.modes.length === 0) return true;
     return a.modes.includes(mode);
   };
+
+  const inMode = (id: string) => allowed(id);
   const allAssigned = new Set(pages.flat());
   const orphans = APPS.filter(
-    (a) =>
-      a.category !== "hidden" &&
-      (!a.modes || a.modes.includes(mode)) &&
-      !allAssigned.has(a.id),
+    (a) => a.category !== "hidden" && allowed(a.id) && !allAssigned.has(a.id),
   ).map((a) => a.id);
 
   const MIN_PANEL = 280;
@@ -127,15 +192,24 @@ export function Desktop() {
 
   return (
     <main
-      className="absolute left-0 right-0 overflow-hidden"
-      style={{
-        top: 96 + 40,
-        bottom: 52,
-        background: wallpaperBackground(wallpaperStyle),
-      }}
+      className="absolute overflow-hidden"
+      style={
+        embedded
+          ? {
+              inset: 0,
+              background: wallpaperBackground(wallpaperStyle),
+            }
+          : {
+              top: 96 + 40,
+              left: 0,
+              right: 0,
+              bottom: 52,
+              background: wallpaperBackground(wallpaperStyle),
+            }
+      }
     >
-      {/* Top action bar — Add panel + count */}
-      {hydrated && (
+      {/* Top action bar removed — Add Panel lives in the ModeToggle bar. */}
+      {false && hydrated && (
         <div
           style={{
             position: "absolute",
@@ -197,7 +271,7 @@ export function Desktop() {
         style={{
           width: "100%",
           height: "100%",
-          paddingTop: 56,
+          paddingTop: 12,
           paddingBottom: 12,
           paddingLeft: 16,
           paddingRight: 16,
@@ -207,16 +281,6 @@ export function Desktop() {
           gap: 0,
           overflowX: "auto",
           overflowY: "hidden",
-        }}
-        onWheel={(e) => {
-          const target = e.target as HTMLElement;
-          const panel = target.closest<HTMLElement>("[data-panel-scroll]");
-          if (panel && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-            panel.scrollBy({
-              top: e.deltaY * scrollSpeedMul,
-              behavior: "auto",
-            });
-          }
         }}
       >
         {hydrated &&
@@ -261,7 +325,16 @@ export function Desktop() {
                       accentColor={accentColor}
                       cornerRadius={cornerRadius}
                       dimmed={!!draggingAppId && draggingAppId !== app.id}
-                      onOpen={() => open(app.id)}
+                      onOpen={() => {
+                        if (!user) {
+                          const p = getPitch(app.id, app.label);
+                          if (p) {
+                            setPitch(p);
+                            return;
+                          }
+                        }
+                        open(app.id);
+                      }}
                       onDragStart={() => setDraggingAppId(app.id)}
                       onDragEnd={() => setDraggingAppId(null)}
                     />
@@ -300,6 +373,9 @@ export function Desktop() {
             );
           })}
       </div>
+      {pitch && (
+        <ModulePitchModal pitch={pitch} onClose={() => setPitch(null)} />
+      )}
     </main>
   );
 }
@@ -532,6 +608,9 @@ function Panel({
           overflowY: "auto",
           overflowX: "hidden",
           padding: 12,
+          overscrollBehavior: "contain",
+          // momentum/inertia on touch + macOS trackpad — feels native
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <div

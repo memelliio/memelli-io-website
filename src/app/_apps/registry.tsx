@@ -25,7 +25,10 @@ import { PartnersHub } from "./PartnersHub";
 const I = "/os/icons";
 
 export const APPS: AppDef[] = [
-  // ── BUSINESS (12) ──────────────────────────────────────────────
+  // ── PRIMARY ENTRY ──────────────────────────────────────────────
+  { id: "memelli-terminal", label: "Memelli Terminal", icon: `${I}/memelli-chat.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 1100, h: 720 }, body: { kind: "iframe", src: "/memelli-terminal" } },
+
+  // ── BUSINESS ───────────────────────────────────────────────────
   { id: "pre-qualification", label: "Pre-Qualification", icon: `${I}/pre-qualification.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 980, h: 700 }, body: { kind: "component", Component: PreQual } },
   { id: "funding", label: "Funding", icon: `${I}/funding.png`, category: "business", modes: ["personal", "business"], badge: 3, defaultSize: { w: 760, h: 500 }, body: { kind: "stub", title: "Funding", blurb: "Funding requests in flight.", ctaHref: "/dashboard/funding", ctaLabel: "Open Funding" } },
   { id: "credit-repair", label: "Credit Repair", icon: `${I}/credit-reports.png`, category: "business", modes: ["personal", "business"], badge: 2, singleton: true, defaultSize: { w: 920, h: 700 }, body: { kind: "component", Component: CreditRepair } },
@@ -45,7 +48,6 @@ export const APPS: AppDef[] = [
   { id: "phone", label: "Phone", icon: `${I}/phone.png`, category: "communications", modes: ["business"], defaultSize: { w: 420, h: 600 }, body: { kind: "stub", title: "Phone", blurb: "Outbound + inbound." } },
   { id: "video-conference", label: "Video Conference", icon: `${I}/video-conference.png`, category: "communications", modes: ["business"], defaultSize: { w: 880, h: 560 }, body: { kind: "stub", title: "Video Conference", blurb: "Multi-party meet." } },
   { id: "messages", label: "Messages", icon: `${I}/messages.png`, category: "communications", modes: ["business"], badge: 7, defaultSize: { w: 720, h: 500 }, body: { kind: "stub", title: "Messages", blurb: "SMS + chat threads." } },
-  { id: "memelli-chat", label: "Memelli OS Terminal", icon: `${I}/memelli-chat.png`, category: "communications", modes: ["business"], singleton: true, defaultSize: { w: 1100, h: 720 }, body: { kind: "iframe", src: "/memelli-terminal" } },
   { id: "voicemail", label: "Voicemail", icon: `${I}/voicemail.png`, category: "communications", modes: ["business"], defaultSize: { w: 560, h: 420 }, body: { kind: "stub", title: "Voicemail", blurb: "Transcribed voicemails." } },
   { id: "social", label: "Social", icon: `${I}/social.png`, category: "communications", modes: ["business"], defaultSize: { w: 720, h: 500 }, body: { kind: "stub", title: "Social", blurb: "Inbound mentions." } },
 
@@ -56,10 +58,10 @@ export const APPS: AppDef[] = [
   { id: "notes", label: "Notes", icon: `${I}/notes.png`, category: "productivity", modes: ["business"], defaultSize: { w: 560, h: 440 }, body: { kind: "component", Component: Notes } },
   { id: "reports", label: "Reports", icon: `${I}/reports.png`, category: "productivity", modes: ["business"], defaultSize: { w: 760, h: 500 }, body: { kind: "stub", title: "Reports", blurb: "Saved analytics views." } },
   { id: "seo", label: "SEO", icon: `${I}/seo.png`, category: "productivity", modes: ["business"], defaultSize: { w: 760, h: 500 }, body: { kind: "stub", title: "SEO", blurb: "Keywords + ranks." } },
-  { id: "code", label: "Code", icon: `${I}/code.png`, category: "productivity", modes: ["business"], defaultSize: { w: 980, h: 640 }, body: { kind: "iframe", src: "https://code.memelli.io" } },
   { id: "photos", label: "Photos", icon: `${I}/photos.png`, category: "productivity", modes: ["business"], defaultSize: { w: 720, h: 500 }, body: { kind: "stub", title: "Photos", blurb: "Image library." } },
-  { id: "tv", label: "TV", icon: `${I}/tv.png`, category: "productivity", modes: ["business"], defaultSize: { w: 880, h: 540 }, body: { kind: "stub", title: "TV", blurb: "Memelli TV channel." } },
-  { id: "radio", label: "Radio", icon: `${I}/radio.png`, category: "productivity", modes: ["business"], defaultSize: { w: 480, h: 320 }, body: { kind: "stub", title: "Radio", blurb: "Memelli radio." } },
+  { id: "tv", label: "TV", icon: `${I}/tv.png`, category: "productivity", modes: ["personal", "business"], defaultSize: { w: 880, h: 540 }, body: { kind: "stub", title: "TV", blurb: "Memelli TV channel." } },
+  { id: "music", label: "Music", icon: `${I}/radio.png`, category: "productivity", modes: ["personal", "business"], defaultSize: { w: 480, h: 320 }, body: { kind: "stub", title: "Music", blurb: "Memelli music." } },
+  { id: "radio", label: "Radio", icon: `${I}/radio.png`, category: "productivity", modes: ["personal", "business"], defaultSize: { w: 480, h: 320 }, body: { kind: "stub", title: "Radio", blurb: "Memelli radio." } },
 
   // ── SYSTEM (5) ─────────────────────────────────────────────────
   { id: "wallet", label: "Wallet", icon: `${I}/wallet.png`, category: "system", modes: ["business"], defaultSize: { w: 560, h: 420 }, body: { kind: "stub", title: "Wallet", blurb: "Cards + payouts." } },

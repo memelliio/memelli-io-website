@@ -10,11 +10,17 @@ const STRIP_H = 32;
 
 export function WindowList() {
   const windows = useWindowStore((s) => s.windows);
+  const pins = useWindowStore((s) => s.pins);
+  const open = useWindowStore((s) => s.open);
   const focus = useWindowStore((s) => s.focus);
   const close = useWindowStore((s) => s.close);
   const minimize = useWindowStore((s) => s.minimize);
   const restore = useWindowStore((s) => s.restore);
   const topZ = useWindowStore((s) => s.topZ);
+  // Pinned apps that don't currently have an open window.
+  // Click → open the app (joins the active list to the right).
+  const openAppIds = new Set(windows.map((w) => w.appId));
+  const inactivePins = pins.filter((p) => !openAppIds.has(p));
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +42,7 @@ export function WindowList() {
     };
   }, [menu]);
 
-  if (windows.length === 0) return null;
+  if (windows.length === 0 && inactivePins.length === 0) return null;
 
   return (
     <>
@@ -204,6 +210,67 @@ export function WindowList() {
                   }}
                 />
               )}
+            </div>
+          );
+        })}
+
+        {/* Inactive pins — non-focused, click to open */}
+        {inactivePins.map((appId) => {
+          const app = APPS.find((a) => a.id === appId);
+          if (!app) return null;
+          return (
+            <div
+              key={`pin-${appId}`}
+              role="button"
+              tabIndex={0}
+              title={app.label}
+              onClick={() => open(appId)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  open(appId);
+                }
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 10px",
+                height: 24,
+                borderRadius: 4,
+                background: "transparent",
+                color: "hsl(var(--ink))",
+                fontSize: 12,
+                cursor: "pointer",
+                opacity: 0.78,
+                flex: "0 0 auto",
+                userSelect: "none",
+                transition: "background 120ms, opacity 120ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(15,17,21,0.04)";
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.opacity = "0.78";
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  width: 14,
+                  height: 14,
+                  flexShrink: 0,
+                }}
+              >
+                <img
+                  src={app.icon}
+                  alt=""
+                  style={{ width: 14, height: 14, objectFit: "contain" }}
+                />
+              </span>
+              <span style={{ fontWeight: 500 }}>{app.label}</span>
             </div>
           );
         })}
