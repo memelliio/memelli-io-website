@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MelliBar } from "./_components/MelliBar";
 import { Taskbar } from "./_components/Taskbar";
 import { Desktop } from "./_components/Desktop";
@@ -11,18 +12,30 @@ import { ModeToggle } from "./_components/ModeToggle";
 import { JourneyTab } from "./_components/JourneyTab";
 import { SignInTab } from "./_components/SignInTab";
 import { BusinessCenter } from "./_components/BusinessCenter";
+import { MobileShell } from "./_components/mobile/MobileShell";
 import { useWindowStore } from "./_lib/window-store";
 import { useOsMode } from "./_lib/os-mode-store";
 import { useSessionContextPublisher } from "./_lib/session-context-publisher";
 
 export default function OsPage() {
-  // M6 — publish session_context for MelliBar awareness.
   useSessionContextPublisher();
   const windows = useWindowStore((s) => s.windows);
   const mode = useOsMode((s) => s.mode);
-  // Mode drives surface — same for anon and logged-in. BC populates with
-  // DEMO contacts when no real tenant data is loaded.
   const showBusiness = mode === "business";
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 599px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  if (isMobile) {
+    return <MobileShell />;
+  }
+
   return (
     <div
       data-os-root
