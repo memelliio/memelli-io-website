@@ -1,4 +1,5 @@
-// Shared pg pool for MelliBar API routes.
+// MelliBar shared DB helper. Pool max:1, idle-timeout 5s — keeps the running
+// service inside Postgres connection limits even under N replicas.
 import { Pool } from "pg";
 
 declare global {
@@ -14,7 +15,12 @@ function databaseUrl(): string {
 
 export function pool(): Pool {
   if (!globalThis.__memelli_mellibar_pool) {
-    globalThis.__memelli_mellibar_pool = new Pool({ connectionString: databaseUrl(), max: 4 });
+    globalThis.__memelli_mellibar_pool = new Pool({
+      connectionString: databaseUrl(),
+      max: 1,
+      idleTimeoutMillis: 5_000,
+      connectionTimeoutMillis: 10_000,
+    });
   }
   return globalThis.__memelli_mellibar_pool;
 }
