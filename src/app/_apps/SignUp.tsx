@@ -128,9 +128,21 @@ export function SignUp() {
         (json.access_token as string) ||
         "";
       if (token) {
+        // Single source of truth: prefixed key only. AuthProvider's
+        // `storage` + `memelli:auth-state` listeners will pick it up
+        // and refresh the React context state without a page reload.
         try {
-          localStorage.setItem("memelli_token", token);
-          localStorage.setItem("memelli_live_token", token);
+          const host = typeof window !== "undefined" ? window.location.hostname : "";
+          let prefix: string;
+          if (host === "localhost" || host === "127.0.0.1" || host.startsWith("dev.")) {
+            prefix = "dev";
+          } else if (host.startsWith("pro.")) {
+            prefix = "pro";
+          } else {
+            prefix = "live";
+          }
+          localStorage.setItem(`memelli_${prefix}_token`, token);
+          localStorage.setItem(`memelli_${prefix}_remember_me`, "true");
         } catch {
           /* noop */
         }
