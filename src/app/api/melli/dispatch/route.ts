@@ -22,8 +22,7 @@ const PLATFORM_TENANT = "98c1ecb7-6ad1-4349-96e3-5743198bee29";
 const GATEWAY_URL =
   process.env.MEMELLI_CORE_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://api.memelli.io";
-const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
+  "https://api-production-057c.up.railway.app";
 
 interface ContactRow {
   id: string;
@@ -222,56 +221,12 @@ async function handle(
       };
 
     default:
-      return await groqFallback(handler, params);
-  }
-}
-
-// ── Groq fallback for unknown handlers ───────────────────────────────────────
-// When MelliBar dispatches a handler the switch above doesn't recognize, route
-// through the gateway's /api/groq/dispatch (gpt-oss-120b) for a conversational
-// reply. Gateway already has reasoning-fallback + 8192 max_tokens (commit
-// b28be871 in memelli-groq-service). On any failure we fall back to the
-// generic "don't know how" response so the bar never hangs.
-async function groqFallback(
-  handler: string,
-  params: Record<string, string>,
-): Promise<DispatchResponse> {
-  const fallback: DispatchResponse = {
-    ok: false,
-    action: { type: "noop" },
-    speak: `I don't know how to ${handler} yet.`,
-    error: "unknown_handler",
-  };
-  if (!INTERNAL_SERVICE_TOKEN || !GATEWAY_URL) return fallback;
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
-    const res = await fetch(`${GATEWAY_URL}/api/groq/dispatch`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${INTERNAL_SERVICE_TOKEN}`,
-      },
-      body: JSON.stringify({
-        task: `MelliBar received an unknown handler "${handler}" with params ${JSON.stringify(params)}. Reply in one short conversational sentence (<= 18 words) explaining what you'd do or asking a clarifying question. No JSON, no markdown, just plain spoken text.`,
-        model: "openai/gpt-oss-120b",
-        kind: "code",
-        maxTokens: 256,
-      }),
-      signal: ctrl.signal,
-    }).finally(() => clearTimeout(timer));
-    if (!res.ok) return fallback;
-    const j = (await res.json()) as { ok?: boolean; result?: string; bytes?: number };
-    const speak = (j.result ?? "").trim();
-    if (!j.ok || !speak) return fallback;
-    return {
-      ok: true,
-      action: { type: "noop" },
-      speak,
-      data: { source: "groq_fallback", bytes: j.bytes },
-    };
-  } catch {
-    return fallback;
+      return {
+        ok: false,
+        action: { type: "noop" },
+        speak: `I don't know how to ${handler} yet.`,
+        error: "unknown_handler",
+      };
   }
 }
 
@@ -323,5 +278,6 @@ export async function POST(req: NextRequest) {
     void e;
   }
 
+  void GATEWAY_URL;
   return NextResponse.json(resp);
 }
