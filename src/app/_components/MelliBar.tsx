@@ -1,5 +1,7 @@
 "use client";
 
+
+import { PartnerLogo } from "@/app/_components/PartnerLogo";
 import { useEffect, useRef, useState } from "react";
 import { Tv, Radio, Settings as Cog } from "lucide-react";
 import { WaveBar } from "./WaveBar";
@@ -105,7 +107,12 @@ export function MelliBar() {
     };
   }, [inCall]);
 
-  const engage = () => setInCall((v) => !v);
+  const engage = () => {
+    // Open the Memelli Terminal window (iframe to /memelli-terminal)
+    // and toggle the call/visualizer state.
+    open("memelli-terminal");
+    setInCall((v) => !v);
+  };
 
   const statusLabel =
     mode === "listening"
@@ -219,18 +226,7 @@ export function MelliBar() {
             minWidth: 0,
           }}
         >
-          <img
-            src="/os/brand/memelli-logo-white.png"
-            alt="Memelli"
-            style={{
-              height: 64,
-              width: "auto",
-              objectFit: "contain",
-              flexShrink: 0,
-              filter: "drop-shadow(0 1px 6px rgba(196,30,58,0.25))",
-            }}
-            draggable={false}
-          />
+          <PartnerLogo alt="Memelli" style={{ height: 64, width: "auto", objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 1px 6px rgba(196,30,58,0.25))" }} />
           {inCall && (
             <span
               style={{
@@ -311,12 +307,7 @@ export function MelliBar() {
           }}
         >
           {showLogo && (
-            <img
-              src="/os/brand/memelli-logo-white.png"
-              alt=""
-              draggable={false}
-              style={{ height: 22, width: "auto" }}
-            />
+            <PartnerLogo alt="" style={{ height: 22, width: "auto" }} />
           )}
           {showText && <span>{inCall ? "End Call" : "Let Memelli Guide Me"}</span>}
         </button>

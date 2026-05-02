@@ -184,7 +184,7 @@ export function PreQual() {
                 padding: "3px 10px",
                 borderRadius: 9999,
                 background: "rgba(196,30,58,0.08)",
-                color: "#C41E3A",
+                color: "var(--brand-color, #C41E3A)",
               }}
             >
               Pre-Qualification
@@ -239,7 +239,7 @@ export function PreQual() {
                     fontSize: 11,
                     fontWeight: 800,
                     flexShrink: 0,
-                    background: state === "upcoming" ? "#E5E7EB" : "#C41E3A",
+                    background: state === "upcoming" ? "#E5E7EB" : "var(--brand-color, #C41E3A)",
                     color: state === "upcoming" ? "#9CA3AF" : "white",
                     boxShadow:
                       state === "active"
@@ -260,7 +260,7 @@ export function PreQual() {
                     fontWeight: state === "active" ? 800 : 600,
                     color:
                       state === "active"
-                        ? "#C41E3A"
+                        ? "var(--brand-color, #C41E3A)"
                         : state === "done"
                           ? "#0B0B0F"
                           : "#9CA3AF",
@@ -274,7 +274,7 @@ export function PreQual() {
                     style={{
                       flex: 1,
                       height: 2,
-                      background: state === "done" ? "#C41E3A" : "#E5E7EB",
+                      background: state === "done" ? "var(--brand-color, #C41E3A)" : "#E5E7EB",
                     }}
                   />
                 )}
@@ -317,7 +317,7 @@ export function PreQual() {
                   fontWeight: 700,
                   letterSpacing: "0.32em",
                   textTransform: "uppercase",
-                  color: "#C41E3A",
+                  color: "var(--brand-color, #C41E3A)",
                   marginBottom: 6,
                 }}
               >
@@ -334,27 +334,27 @@ export function PreQual() {
               >
                 {stepId === "welcome" && (
                   <>
-                    Welcome to your <span style={{ color: "#C41E3A" }}>pre-qual.</span>
+                    Welcome to your <span style={{ color: "var(--brand-color, #C41E3A)" }}>pre-qual.</span>
                   </>
                 )}
                 {stepId === "username" && (
                   <>
-                    SmartCredit <span style={{ color: "#C41E3A" }}>email.</span>
+                    SmartCredit <span style={{ color: "var(--brand-color, #C41E3A)" }}>email.</span>
                   </>
                 )}
                 {stepId === "password" && (
                   <>
-                    SmartCredit <span style={{ color: "#C41E3A" }}>password.</span>
+                    SmartCredit <span style={{ color: "var(--brand-color, #C41E3A)" }}>password.</span>
                   </>
                 )}
                 {stepId === "pulling" && (
                   <>
-                    Pulling your <span style={{ color: "#C41E3A" }}>reports.</span>
+                    Pulling your <span style={{ color: "var(--brand-color, #C41E3A)" }}>reports.</span>
                   </>
                 )}
                 {stepId === "done" && (
                   <>
-                    Reports <span style={{ color: "#C41E3A" }}>ready.</span>
+                    Reports <span style={{ color: "var(--brand-color, #C41E3A)" }}>ready.</span>
                   </>
                 )}
               </h1>
@@ -386,7 +386,7 @@ export function PreQual() {
             <div
               style={{
                 flex: "0 0 60%",
-                background: "#C41E3A",
+                background: "var(--brand-color, #C41E3A)",
                 clipPath: "polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%)",
                 color: "white",
                 display: "flex",
@@ -471,7 +471,7 @@ export function PreQual() {
                   borderRadius: 9999,
                   border: "1px solid rgba(196,30,58,0.3)",
                   background: "rgba(196,30,58,0.05)",
-                  color: "#C41E3A",
+                  color: "var(--brand-color, #C41E3A)",
                   fontSize: 11,
                   fontWeight: 700,
                   letterSpacing: "0.06em",
@@ -492,7 +492,7 @@ export function PreQual() {
                 }}
               >
                 We pull your 3-bureau credit report directly from{" "}
-                <span style={{ color: "#C41E3A", fontWeight: 800 }}>
+                <span style={{ color: "var(--brand-color, #C41E3A)", fontWeight: 800 }}>
                   SmartCredit.com
                 </span>{" "}
                 — only.
@@ -598,7 +598,7 @@ export function PreQual() {
                   display: "grid",
                   placeItems: "center",
                   background: "rgba(196,30,58,0.07)",
-                  color: "#C41E3A",
+                  color: "var(--brand-color, #C41E3A)",
                   border: "1px solid rgba(196,30,58,0.2)",
                   animation: "spin 1.2s linear infinite",
                 }}
@@ -696,7 +696,7 @@ export function PreQual() {
                         style={{
                           fontSize: 22,
                           fontWeight: 800,
-                          color: s.score >= 680 ? "#10B981" : "#C41E3A",
+                          color: s.score >= 680 ? "#10B981" : "var(--brand-color, #C41E3A)",
                           letterSpacing: "-0.5px",
                         }}
                       >

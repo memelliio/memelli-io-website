@@ -44,6 +44,16 @@ export function PartnerProvider({ initialSlug, children }: { initialSlug?: strin
     (auth as any)?.user?.partnerSlug ?? (auth as any)?.user?.partner?.slug ?? null;
 
   useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (partner?.brandColor) {
+        document.documentElement.style.setProperty('--brand-color', partner.brandColor);
+      } else {
+        document.documentElement.style.removeProperty('--brand-color');
+      }
+    }
+  }, [partner?.brandColor]);
+
+  useEffect(() => {
     const slug = userPartnerSlug || readCookie('partner_slug') || initialSlug || null;
     if (!slug) {
       setPartner(null);

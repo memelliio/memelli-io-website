@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useOsMode } from "../_lib/os-mode-store";
 import { useWindowStore } from "../_lib/window-store";
+import { Desktop } from "./Desktop";
 import {
   FileText,
   ChevronDown,
@@ -39,7 +40,7 @@ import {
   type ModuleId,
 } from "../_lib/contact-store";
 
-const RED = "#C41E3A";
+const RED = "var(--brand-color, #C41E3A)";
 const INK = "#0B0B0F";
 const PAPER = "#FFFFFF";
 const SOFT = "#FAFAFA";
@@ -463,10 +464,11 @@ function CrmFrame({
         </div>
       </aside>
 
-      {/* Right side is a transparent canvas. WindowFrames float over it,
-          managed by useWindowStore. Default CRM Workspace auto-opens on
-          first contact select; user opens more windows from the desktop
-          icons or via the workspace's "+ Add" tab catalog. */}
+      {/* Right side = the SAME Desktop home screen (drag-drop icon panels),
+          mode-filtered to business apps. Operator-locked behavior: business
+          mode is the personal home + a contacts rail pinned on the left.
+          Contact-focused workspace windows still auto-open via the useEffect
+          in the parent BusinessCenter. */}
       <div
         style={{
           flex: 1,
@@ -475,7 +477,7 @@ function CrmFrame({
           background: SOFT,
         }}
       >
-        {!focusedContact && <EmptyContact />}
+        <Desktop embedded />
       </div>
     </div>
   );

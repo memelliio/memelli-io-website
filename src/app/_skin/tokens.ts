@@ -1,7 +1,7 @@
 // Single source of truth for the Memelli editorial OS skin.
 // Every app surface should import from here — never inline the hex.
 
-export const RED = "#C41E3A";
+export const RED = "var(--brand-color, #C41E3A)";
 export const RED_2 = "#A8182F";
 export const RED_SOFT = "rgba(196,30,58,0.08)";
 export const RED_BORDER = "rgba(196,30,58,0.20)";

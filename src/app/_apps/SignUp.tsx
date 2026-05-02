@@ -211,7 +211,7 @@ export function SignUp() {
                 padding: "3px 10px",
                 borderRadius: 9999,
                 background: "rgba(196,30,58,0.08)",
-                color: "#C41E3A",
+                color: "var(--brand-color, #C41E3A)",
               }}
             >
               Sign Up
@@ -269,7 +269,7 @@ export function SignUp() {
                     fontWeight: 800,
                     flexShrink: 0,
                     background:
-                      state === "upcoming" ? "#E5E7EB" : "#C41E3A",
+                      state === "upcoming" ? "#E5E7EB" : "var(--brand-color, #C41E3A)",
                     color:
                       state === "upcoming" ? "#9CA3AF" : "white",
                     boxShadow:
@@ -291,7 +291,7 @@ export function SignUp() {
                     fontWeight: state === "active" ? 800 : 600,
                     color:
                       state === "active"
-                        ? "#C41E3A"
+                        ? "var(--brand-color, #C41E3A)"
                         : state === "done"
                           ? "#0B0B0F"
                           : "#9CA3AF",
@@ -305,7 +305,7 @@ export function SignUp() {
                     style={{
                       flex: 1,
                       height: 2,
-                      background: state === "done" ? "#C41E3A" : "#E5E7EB",
+                      background: state === "done" ? "var(--brand-color, #C41E3A)" : "#E5E7EB",
                     }}
                   />
                 )}
@@ -348,7 +348,7 @@ export function SignUp() {
                   fontWeight: 700,
                   letterSpacing: "0.32em",
                   textTransform: "uppercase",
-                  color: "#C41E3A",
+                  color: "var(--brand-color, #C41E3A)",
                   marginBottom: 6,
                 }}
               >
@@ -365,22 +365,22 @@ export function SignUp() {
               >
                 {stepId === "identity" && (
                   <>
-                    Who's <span style={{ color: "#C41E3A" }}>signing in?</span>
+                    Who's <span style={{ color: "var(--brand-color, #C41E3A)" }}>signing in?</span>
                   </>
                 )}
                 {stepId === "contact" && (
                   <>
-                    How do we <span style={{ color: "#C41E3A" }}>reach you?</span>
+                    How do we <span style={{ color: "var(--brand-color, #C41E3A)" }}>reach you?</span>
                   </>
                 )}
                 {stepId === "confirm" && (
                   <>
-                    All <span style={{ color: "#C41E3A" }}>set.</span>
+                    All <span style={{ color: "var(--brand-color, #C41E3A)" }}>set.</span>
                   </>
                 )}
                 {stepId === "verify" && (
                   <>
-                    Verify your <span style={{ color: "#C41E3A" }}>phone.</span>
+                    Verify your <span style={{ color: "var(--brand-color, #C41E3A)" }}>phone.</span>
                   </>
                 )}
               </h1>
@@ -412,7 +412,7 @@ export function SignUp() {
             <div
               style={{
                 flex: "0 0 60%",
-                background: "#C41E3A",
+                background: "var(--brand-color, #C41E3A)",
                 clipPath: "polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%)",
                 color: "white",
                 display: "flex",
@@ -462,7 +462,7 @@ export function SignUp() {
             }}
           >
             <span>{stepId.toUpperCase()}</span>
-            <span style={{ color: "#C41E3A" }}>
+            <span style={{ color: "var(--brand-color, #C41E3A)" }}>
               {String(step + 1).padStart(2, "0")} / 0{STEPS.length}
             </span>
           </div>

@@ -402,7 +402,7 @@ export function TerminalChip({
   const cfg = {
     ok: { bg: "rgba(16,185,129,0.12)", fg: TGREEN },
     warn: { bg: "rgba(245,158,11,0.14)", fg: TAMBER },
-    bad: { bg: "rgba(196,30,58,0.10)", fg: "#C41E3A" },
+    bad: { bg: "rgba(196,30,58,0.10)", fg: "var(--brand-color, #C41E3A)" },
     info: { bg: "rgba(99,102,241,0.10)", fg: "#6366F1" },
     muted: { bg: "rgba(15,17,21,0.05)", fg: TFG_DIM },
   }[tone];

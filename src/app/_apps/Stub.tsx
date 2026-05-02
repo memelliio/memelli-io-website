@@ -2,7 +2,7 @@
 
 import { ArrowRight, ExternalLink } from "lucide-react";
 
-const RED = "#C41E3A";
+const RED = "var(--brand-color, #C41E3A)";
 const RED_2 = "#A8182F";
 const INK = "#0B0B0F";
 const GRAY = "#6B7280";

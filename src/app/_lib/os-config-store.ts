@@ -49,7 +49,7 @@ export const DEFAULT_OS_CONFIG: OsConfig = {
   defaultWindowW: 720,
   defaultWindowH: 480,
   rememberWindowPositions: true,
-  accentColor: "#C41E3A",
+  accentColor: "var(--brand-color, #C41E3A)",
   cornerRadius: 12,
   reducedMotion: false,
   highContrast: false,

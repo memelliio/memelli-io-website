@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PartnersPanel } from '@/components/modules/PartnersPanel';
+import { PartnersPanel } from '../../../components/modules/PartnersPanel';
 
 // ── Program tabs ──────────────────────────────────────────────────────────────
 
@@ -87,7 +87,7 @@ const tabBtn = (active: boolean): React.CSSProperties => ({
   border: 'none',
   borderBottom: active ? '2px solid #C41E3A' : '2px solid transparent',
   background: 'transparent',
-  color: active ? '#C41E3A' : '#6b7280',
+  color: active ? 'var(--brand-color, #C41E3A)' : '#6b7280',
   cursor: 'pointer',
   transition: 'all 0.15s',
   marginBottom: -1,

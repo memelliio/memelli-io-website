@@ -1,52 +1,58 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LogIn, LogOut, Mail, KeyRound, ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  KeyRound,
+  LogIn,
+  LogOut,
+  Mail,
+} from "lucide-react";
+import { useAuth } from "@/contexts/auth";
 import { useWindowStore } from "../_lib/window-store";
 
-const TAB_W = 36;
-const DRAWER_W = 320;
-const TOKEN_KEYS = ["memelli_dev_token", "memelli_live_token"] as const;
+const RED = "var(--brand-color, #C41E3A)";
+const RED_2 = "#A8182F";
+const INK = "#0F1115";
+const PAPER = "#FFFFFF";
+const LINE = "#E5E7EB";
+const MUTED = "rgba(15,17,21,0.55)";
 
-function isAuthenticated(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return !!(
-      localStorage.getItem("memelli_dev_token") ||
-      localStorage.getItem("memelli_live_token")
-    );
-  } catch {
-    return false;
-  }
+const TAB_W_SIDE = 36;
+const TAB_H_SIDE = 120;
+const TAB_H_BOTTOM = 26;
+const TASKBAR_H = 52;
+const DRAWER_W = 320;
+const SIDE_TOP = 408;
+const BOTTOM_RIGHT = 155; // sits LEFT of JourneyTab (right:16) — gap clears its width
+
+function displayName(u: {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}): string {
+  const full = [u.firstName, u.lastName].filter(Boolean).join(" ").trim();
+  return full || u.email || "Signed in";
+}
+
+function initials(name?: string | null, email?: string | null): string {
+  const src = (name || email || "?").trim();
+  const parts = src.split(/[\s@.]+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
 }
 
 export function SignInTab() {
+  const { user, login, logout, isLoading } = useAuth();
   const openWindow = useWindowStore((s) => s.open);
   const [open, setOpen] = useState(false);
-  const [authed, setAuthed] = useState(false);
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const tabRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    setAuthed(isAuthenticated());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === null || TOKEN_KEYS.includes(e.key as (typeof TOKEN_KEYS)[number])) {
-        setAuthed(isAuthenticated());
-      }
-    };
-    const onAuthState = () => setAuthed(isAuthenticated());
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("memelli:auth-state", onAuthState as EventListener);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener(
-        "memelli:auth-state",
-        onAuthState as EventListener,
-      );
-    };
-  }, []);
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -70,48 +76,198 @@ export function SignInTab() {
     };
   }, [open, close]);
 
-  const signIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !pw) return;
-    try {
-      localStorage.setItem(
-        "memelli_dev_token",
-        `demo-${Date.now().toString(36)}`,
-      );
-    } catch {
-      /* noop */
+  useEffect(() => {
+    if (!open) {
+      setErr(null);
+      setSubmitting(false);
     }
-    window.dispatchEvent(
-      new CustomEvent("memelli:auth-state", {
-        detail: { authenticated: true, email },
-      }),
-    );
-    setAuthed(true);
-    setEmail("");
-    setPw("");
-  };
+  }, [open]);
 
-  const signOut = () => {
-    try {
-      for (const k of TOKEN_KEYS) localStorage.removeItem(k);
-    } catch {
-      /* noop */
-    }
-    window.dispatchEvent(
-      new CustomEvent("memelli:auth-state", {
-        detail: { authenticated: false },
-      }),
-    );
-    setAuthed(false);
-  };
+  if (isLoading) return null;
 
+  const authed = !!user;
+  const placement: "side" | "bottom" = authed ? "bottom" : "side";
   const label = authed ? "Sign Out" : "Sign In";
 
+  const onSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setErr(null);
+    setSubmitting(true);
+    try {
+      await login(email.trim(), pw, true);
+      setEmail("");
+      setPw("");
+      setOpen(false);
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Sign in failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onSignOut = () => {
+    setOpen(false);
+    logout();
+  };
+
+  // ── BOTTOM placement (logged-in) ─────────────────────────────────────
+  if (placement === "bottom") {
+    return (
+      <>
+        <button
+          ref={tabRef}
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={label}
+          title={label}
+          style={{
+            position: "fixed",
+            bottom: TASKBAR_H,
+            right: BOTTOM_RIGHT,
+            height: TAB_H_BOTTOM,
+            padding: "0 14px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            border: 0,
+            borderRadius: "8px 8px 0 0",
+            background: open
+              ? `linear-gradient(180deg, ${RED}, ${RED_2})`
+              : PAPER,
+            color: open ? PAPER : RED,
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            boxShadow: open
+              ? "0 -4px 12px -4px rgba(196,30,58,0.4)"
+              : "0 -2px 8px -2px rgba(15,17,21,0.10)",
+            borderTop: `1px solid ${open ? RED : LINE}`,
+            borderLeft: `1px solid ${open ? RED : LINE}`,
+            borderRight: `1px solid ${open ? RED : LINE}`,
+            zIndex: 99996,
+          }}
+        >
+          <LogOut size={11} strokeWidth={2.4} />
+          {label}
+        </button>
+
+        <div
+          ref={drawerRef}
+          aria-hidden={!open}
+          style={{
+            position: "fixed",
+            bottom: TASKBAR_H + TAB_H_BOTTOM,
+            right: BOTTOM_RIGHT,
+            width: 300,
+            background: PAPER,
+            color: INK,
+            border: `1px solid ${LINE}`,
+            borderRadius: "12px 12px 0 12px",
+            boxShadow:
+              "0 -16px 36px -8px rgba(196,30,58,0.18), 0 -6px 18px -4px rgba(15,17,21,0.18)",
+            zIndex: 99995,
+            transform: open
+              ? "translateY(0)"
+              : "translateY(20px) scale(0.96)",
+            opacity: open ? 1 : 0,
+            pointerEvents: open ? "auto" : "none",
+            transformOrigin: "bottom right",
+            transition:
+              "transform 280ms cubic-bezier(0.16,1,0.3,1), opacity 200ms",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ padding: 16 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                paddingBottom: 12,
+                borderBottom: `1px solid ${LINE}`,
+              }}
+            >
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 10,
+                  background: `linear-gradient(135deg, ${RED}, ${RED_2})`,
+                  color: PAPER,
+                  display: "grid",
+                  placeItems: "center",
+                  fontSize: 13,
+                  fontWeight: 800,
+                }}
+              >
+                {initials(displayName(user!), user!.email)}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {displayName(user!)}
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: MUTED,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {user!.role ?? user!.email}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onSignOut}
+              style={{
+                marginTop: 12,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                width: "100%",
+                padding: "11px 16px",
+                borderRadius: 9999,
+                border: `1px solid rgba(196,30,58,0.25)`,
+                background: PAPER,
+                color: RED,
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <LogOut size={14} strokeWidth={2} />
+              Sign out
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── SIDE placement (logged-out) ──────────────────────────────────────
   return (
     <div
       style={{
         position: "fixed",
-        top: 408,
+        top: SIDE_TOP,
         right: 0,
         zIndex: 99998,
         display: "flex",
@@ -122,20 +278,19 @@ export function SignInTab() {
       <button
         ref={tabRef}
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={label}
         style={{
           pointerEvents: "auto",
-          width: TAB_W,
-          height: 120,
+          width: TAB_W_SIDE,
+          height: TAB_H_SIDE,
           border: 0,
           margin: 0,
           padding: 0,
           cursor: "pointer",
-          color: "white",
-          background:
-            "linear-gradient(180deg, #C41E3A 0%, #A8182F 100%)",
+          color: PAPER,
+          background: `linear-gradient(180deg, ${RED} 0%, ${RED_2} 100%)`,
           borderTopLeftRadius: 14,
           borderBottomLeftRadius: 14,
           boxShadow:
@@ -178,9 +333,8 @@ export function SignInTab() {
             : `translate(${DRAWER_W}px, -50%)`,
           width: DRAWER_W,
           padding: "26px 24px 24px",
-          background:
-            "linear-gradient(180deg, #ffffff 0%, #FAFBFD 100%)",
-          color: "#0F1115",
+          background: `linear-gradient(180deg, ${PAPER} 0%, #FAFBFD 100%)`,
+          color: INK,
           borderTopLeftRadius: 18,
           borderBottomLeftRadius: 18,
           boxShadow:
@@ -197,7 +351,7 @@ export function SignInTab() {
               fontWeight: 700,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
-              color: "#C41E3A",
+              color: RED,
             }}
           >
             Memelli
@@ -208,179 +362,129 @@ export function SignInTab() {
               fontWeight: 700,
               letterSpacing: "-0.01em",
               margin: "4px 0 0",
-              color: "#0F1115",
+              color: INK,
             }}
           >
-            {authed ? "Account" : "Sign in"}
+            Sign in
           </h2>
           <p
             style={{
               margin: "4px 0 0",
               fontSize: 12,
-              color: "rgba(15,17,21,0.55)",
+              color: MUTED,
               lineHeight: 1.4,
             }}
           >
-            {authed
-              ? "You're signed in. Manage your session below."
-              : "Pick up where you left off — credit, funding, CRM, all linked to one account."}
+            Pick up where you left off — credit, funding, CRM, all linked to
+            one account.
           </p>
         </div>
 
-        {authed ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: 12,
-                borderRadius: 12,
-                background: "#F4F6FA",
-                border: "1px solid #E8EAF0",
-              }}
-            >
-              <div
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #C41E3A, #A8182F)",
-                  color: "white",
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 14,
-                  fontWeight: 800,
-                }}
-              >
-                M
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>
-                  Memelli account
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "rgba(15,17,21,0.55)",
-                  }}
-                >
-                  briggsmel1604@protonmail.com
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={signOut}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                width: "100%",
-                padding: "11px 16px",
-                borderRadius: 9999,
-                border: "1px solid rgba(196,30,58,0.25)",
-                background: "white",
-                color: "#C41E3A",
-                fontSize: 13,
-                fontWeight: 700,
-                letterSpacing: "0.02em",
-                cursor: "pointer",
-                transition: "background 150ms, color 150ms",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#C41E3A";
-                e.currentTarget.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "white";
-                e.currentTarget.style.color = "#C41E3A";
-              }}
-            >
-              <LogOut size={14} strokeWidth={2} />
-              Sign out
-            </button>
-          </div>
-        ) : (
-          <form
-            onSubmit={signIn}
-            style={{ display: "flex", flexDirection: "column", gap: 10 }}
+        <form
+          onSubmit={onSignIn}
+          style={{ display: "flex", flexDirection: "column", gap: 10 }}
+        >
+          <Field label="Email" icon={<Mail size={13} strokeWidth={2} />}>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@memelli.com"
+              autoComplete="email"
+              style={inputStyle}
+            />
+          </Field>
+          <Field
+            label="Password"
+            icon={<KeyRound size={13} strokeWidth={2} />}
           >
-            <Field label="Email" icon={<Mail size={13} strokeWidth={2} />}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@memelli.com"
-                autoComplete="email"
-                style={inputStyle}
-              />
-            </Field>
-            <Field label="Password" icon={<KeyRound size={13} strokeWidth={2} />}>
-              <input
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                style={inputStyle}
-              />
-            </Field>
-            <button
-              type="submit"
+            <input
+              type="password"
+              required
+              value={pw}
+              onChange={(e) => setPw(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              style={inputStyle}
+            />
+          </Field>
+
+          {err && (
+            <div
+              role="alert"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                width: "100%",
-                padding: "11px 16px",
-                borderRadius: 9999,
-                border: 0,
-                marginTop: 4,
-                background: "linear-gradient(135deg, #C41E3A, #A8182F)",
-                color: "white",
-                fontSize: 13,
-                fontWeight: 700,
-                letterSpacing: "0.02em",
-                cursor: "pointer",
-                boxShadow:
-                  "0 8px 22px -8px rgba(196,30,58,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+                fontSize: 11,
+                color: RED,
+                background: "rgba(196,30,58,0.08)",
+                border: "1px solid rgba(196,30,58,0.20)",
+                padding: "8px 10px",
+                borderRadius: 8,
               }}
             >
-              <LogIn size={14} strokeWidth={2} />
-              Sign in
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                openWindow("signup");
-                setOpen(false);
-              }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-                width: "100%",
-                padding: "10px",
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: "0.04em",
-                color: "#C41E3A",
-                background: "transparent",
-                border: "1px dashed rgba(196,30,58,0.35)",
-                borderRadius: 9999,
-                cursor: "pointer",
-                marginTop: 4,
-              }}
-            >
-              Create account
-              <ArrowRight size={12} strokeWidth={2} />
-            </button>
-          </form>
-        )}
+              {err}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              width: "100%",
+              padding: "11px 16px",
+              borderRadius: 9999,
+              border: 0,
+              marginTop: 4,
+              background: submitting
+                ? `${RED}80`
+                : `linear-gradient(135deg, ${RED}, ${RED_2})`,
+              color: PAPER,
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.02em",
+              cursor: submitting ? "wait" : "pointer",
+              boxShadow:
+                "0 8px 22px -8px rgba(196,30,58,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+              fontFamily: "inherit",
+            }}
+          >
+            <LogIn size={14} strokeWidth={2} />
+            {submitting ? "Signing in…" : "Sign in"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              openWindow("signup");
+              setOpen(false);
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              width: "100%",
+              padding: "10px",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              color: RED,
+              background: "transparent",
+              border: `1px dashed rgba(196,30,58,0.35)`,
+              borderRadius: 9999,
+              cursor: "pointer",
+              marginTop: 4,
+              fontFamily: "inherit",
+            }}
+          >
+            Create account
+            <ArrowRight size={12} strokeWidth={2} />
+          </button>
+        </form>
       </aside>
     </div>
   );
@@ -393,7 +497,7 @@ const inputStyle: React.CSSProperties = {
   background: "transparent",
   border: 0,
   outline: "none",
-  color: "#0F1115",
+  color: INK,
   fontFamily: "inherit",
 };
 
@@ -407,20 +511,14 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 4,
-      }}
-    >
+    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <span
         style={{
           fontSize: 10,
           fontWeight: 700,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          color: "rgba(15,17,21,0.55)",
+          color: MUTED,
         }}
       >
         {label}
@@ -432,20 +530,11 @@ function Field({
           gap: 8,
           padding: "0 12px",
           height: 38,
-          background: "white",
-          border: "1px solid #E8EAF0",
+          background: PAPER,
+          border: `1px solid ${LINE}`,
           borderRadius: 10,
           color: "rgba(15,17,21,0.4)",
           transition: "border-color 150ms, box-shadow 150ms",
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = "#C41E3A";
-          e.currentTarget.style.boxShadow =
-            "0 0 0 3px rgba(196,30,58,0.12)";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = "#E8EAF0";
-          e.currentTarget.style.boxShadow = "none";
         }}
       >
         {icon}

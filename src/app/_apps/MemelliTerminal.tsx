@@ -17,7 +17,7 @@ const PERSONA_META: Record<
   { label: string; color: string; icon: typeof Sparkles }
 > = {
   user: { label: "You", color: "#0F1115", icon: User },
-  claude: { label: "Claude", color: "#C41E3A", icon: Sparkles },
+  claude: { label: "Claude", color: "var(--brand-color, #C41E3A)", icon: Sparkles },
   groq: { label: "Groq", color: "#A8182F", icon: Cpu },
   bar: { label: "Bar", color: "#dc2626", icon: Mic },
 };
@@ -173,7 +173,7 @@ export function MemelliTerminal() {
             width: 8,
             height: 8,
             borderRadius: "50%",
-            background: "#C41E3A",
+            background: "var(--brand-color, #C41E3A)",
             boxShadow: "0 0 10px #C41E3A",
             animation: "termPulse 1.6s ease-in-out infinite",
           }}

@@ -155,7 +155,7 @@ export function JourneyBar() {
               fontWeight: 700,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
-              color: "#C41E3A",
+              color: "var(--brand-color, #C41E3A)",
             }}
           >
             Your path
@@ -201,13 +201,13 @@ export function JourneyBar() {
             const status = statusFor(i);
             const dotColor =
               status === "current"
-                ? "#C41E3A"
+                ? "var(--brand-color, #C41E3A)"
                 : status === "done"
                   ? "#faf6f0"
                   : "rgba(255,255,255,0.25)";
             const labelColor =
               status === "current"
-                ? "#C41E3A"
+                ? "var(--brand-color, #C41E3A)"
                 : status === "done"
                   ? "#faf6f0"
                   : "rgba(255,255,255,0.45)";

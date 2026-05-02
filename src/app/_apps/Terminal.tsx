@@ -88,7 +88,7 @@ export function Terminal() {
             style={{
               color:
                 l.kind === "in"
-                  ? "#C41E3A"
+                  ? "var(--brand-color, #C41E3A)"
                   : l.kind === "err"
                     ? "#F87171"
                     : "#E8EAF0",
@@ -105,7 +105,7 @@ export function Terminal() {
           }}
           className="flex items-center gap-2 mt-1"
         >
-          <span style={{ color: "#C41E3A" }}>$</span>
+          <span style={{ color: "var(--brand-color, #C41E3A)" }}>$</span>
           <input
             ref={inputRef}
             value={input}

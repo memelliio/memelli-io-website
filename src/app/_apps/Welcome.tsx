@@ -3,7 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { useWindowStore } from "../_lib/window-store";
 
-const RED = "#C41E3A";
+const RED = "var(--brand-color, #C41E3A)";
 const INK = "#0B0B0F";
 const GRAY = "#6B7280";
 
@@ -12,7 +12,7 @@ const TILES: { title: string; desc: string; appId: string }[] = [
   { title: "Credit Repair", desc: "6-step bureau dispute round.", appId: "credit-repair" },
   { title: "Credit Reports", desc: "Tri-bureau live pull.", appId: "credit-reports" },
   { title: "CRM", desc: "Pipelines and contacts.", appId: "crm" },
-  { title: "Memelli OS Terminal", desc: "Talk to Claude, Groq, Bar.", appId: "memelli-chat" },
+  { title: "Memelli Terminal", desc: "Chat with Claude, Groq, Bar — chat lives inside the terminal.", appId: "memelli-terminal" },
   { title: "Notes", desc: "Quick scratchpad.", appId: "notes" },
 ];
 

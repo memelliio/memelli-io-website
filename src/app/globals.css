@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --brand-color: #C41E3A;
   --background: 0 0% 100%;
   --foreground: 0 0% 9%;
   --ink: 0 0% 9%;
