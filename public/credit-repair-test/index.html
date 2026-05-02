@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Memelli — Credit Repair · Member Flow (Editorial Skin)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Canonical brand from CreditRepairClientFlow.tsx */
+    --red: #C41E3A;
+    --red-2: #A8182F;
+    --ink: #0B0B0F;
+    --ink-2: #1A1A1F;
+    --green: #10B981;
+    --amber: #F59E0B;
+    --paper: #FFFFFF;
+    --soft: #FAFAFA;
+    --line: #E5E7EB;
+    --line-soft: #F0F0F2;
+    --gray-mid: #C9C9CD;
+    --muted: #6B7280;
+    --muted-2: #9CA3AF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--soft); color: var(--ink); font-family: 'Montserrat', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 980px; margin: 0 auto; padding: 0 28px; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .italic { font-family: 'Playfair Display', serif; font-style: italic; }
+  svg.ico { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+
+  /* ========== STICKY STEPPER BAR (matches CreditRepairClientFlow) ========== */
+  .stepper {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .stepper-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+  }
+  .sb-brand { display: flex; align-items: center; gap: 12px; }
+  .sb-brand img { height: 22px; }
+  .sb-brand .div { width: 1px; height: 18px; background: var(--line); }
+  .sb-brand .label { font-size: 10px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+  .sb-pill {
+    font-size: 10px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(196,30,58,0.08); color: var(--red);
+    font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .step-rail {
+    display: flex; gap: 8px; align-items: center;
+    padding: 14px 0 16px;
+  }
+  .step-pip { display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer; }
+  .step-pip .dot {
+    width: 26px; height: 26px;
+    border-radius: 999px;
+    background: var(--line);
+    color: var(--muted-2);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .step-pip.done .dot { background: var(--red); color: white; }
+  .step-pip.active .dot { background: var(--red); color: white; box-shadow: 0 0 0 4px rgba(196,30,58,0.12); }
+  .step-pip .lbl {
+    font-size: 11px; font-weight: 600;
+    color: var(--muted-2);
+    white-space: nowrap;
+  }
+  .step-pip.done .lbl { color: var(--ink); }
+  .step-pip.active .lbl { color: var(--red); font-weight: 800; }
+  .step-pip .connector { flex: 1; height: 2px; background: var(--line); }
+  .step-pip.done .connector { background: var(--red); }
+
+  /* ========== EDITORIAL HERO ========== */
+  .hero {
+    margin-top: 22px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-top { padding: 24px 28px 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .hero-top .eyebrow { font-size: 10px; letter-spacing: 5px; color: var(--red); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-top h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+  .hero-top h1 .red-em { color: var(--red); }
+  .hero-top .sub { margin-top: 6px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 13px; color: var(--muted); }
+  .hero-top .meta { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; text-align: right; line-height: 1.7; }
+  .hero-top .meta .v { color: var(--ink); font-weight: 700; }
+  .hero-bars { display: flex; margin-top: 22px; height: 50px; position: relative; }
+  .hero-red {
+    flex: 0 0 60%;
+    background: var(--red);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 50px) 100%, 0 100%);
+    color: white;
+    display: flex; align-items: center;
+    padding: 0 28px;
+    font-size: 12px; font-weight: 700; letter-spacing: 4px;
+  }
+  .hero-gray {
+    flex: 1;
+    background: var(--gray-mid);
+    clip-path: polygon(50px 0, 100% 0, 100% 100%, 0 100%);
+    margin-left: -50px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 28px;
+    color: var(--ink);
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  }
+  .hero-strip {
+    background: var(--ink);
+    color: white;
+    padding: 8px 28px;
+    font-size: 10px; letter-spacing: 5px; font-weight: 600;
+    display: flex; justify-content: space-between;
+  }
+  .hero-strip .v { color: var(--red); }
+
+  /* ========== STEP TITLE BLOCK (matches CreditRepairClientFlow) ========== */
+  .step-title {
+    margin-top: 22px;
+    padding: 4px 0;
+  }
+  .step-title .small { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .step-title h2 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.05; color: var(--ink); }
+  .step-title p { font-size: 13px; color: var(--muted); margin-top: 8px; max-width: 640px; line-height: 1.5; font-family: 'Playfair Display', serif; font-style: italic; }
+
+  /* ========== STEP CARD (the body of one step) ========== */
+  .step-card {
+    margin-top: 18px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px;
+    min-height: 280px;
+    position: relative;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(0,0,0,0.08);
+  }
+  .step-card .row-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .step-card .row-top .h-l { font-size: 12px; letter-spacing: 2px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+
+  /* ========== TRI-BUREAU GRID (Step 1) ========== */
+  .tri-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr 1fr 1fr;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .tri-grid .hdr {
+    padding: 9px 14px;
+    background: var(--ink); color: white;
+    font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase;
+  }
+  .tri-grid .hdr.lbl-hdr { background: var(--ink-2); }
+  .tri-grid .lbl-cell {
+    padding: 14px 14px;
+    font-size: 10px; letter-spacing: 1.5px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+    background: var(--soft);
+    border-right: 1px solid var(--line);
+    display: flex; align-items: center;
+  }
+  .tri-grid .cell {
+    padding: 12px 14px;
+    border-right: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.12s ease;
+  }
+  .tri-grid .cell:nth-child(4n+4) { border-right: 0; }
+  .tri-grid .cell:last-of-type { border-right: 0; }
+  .tri-grid .cell .val { font-size: 13px; font-weight: 600; line-height: 1.35; }
+  .tri-grid .cell .val .small { font-size: 10px; color: var(--muted); font-weight: 500; display: block; margin-top: 2px; }
+  .tri-grid .cell.unchecked:hover { background: rgba(196,30,58,0.03); }
+  .tri-grid .cell.correct {
+    background: rgba(16,185,129,0.04);
+    box-shadow: inset 3px 0 0 var(--green);
+  }
+  .tri-grid .cell.mismatch {
+    background: rgba(196,30,58,0.06);
+    box-shadow: inset 3px 0 0 var(--red);
+  }
+  .tri-grid .cell .state-tag {
+    position: absolute; top: 8px; right: 10px;
+    font-size: 8px; letter-spacing: 1px; font-weight: 700; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 3px;
+    display: none;
+  }
+  .tri-grid .cell.correct .state-tag.t-correct {
+    display: inline-block;
+    background: var(--green); color: white;
+  }
+  .tri-grid .cell.mismatch .state-tag.t-mismatch {
+    display: inline-block;
+    background: var(--red); color: white;
+  }
+
+  .legend-row {
+    display: flex; gap: 14px; margin-top: 14px;
+    padding: 10px 14px;
+    background: var(--soft);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    align-items: center;
+    justify-content: space-between;
+  }
+  .legend-row .legend { display: flex; gap: 14px; align-items: center; }
+  .legend-row .item { display: flex; align-items: center; gap: 6px; }
+  .legend-row .sw { width: 10px; height: 10px; border-radius: 2px; }
+  .legend-row .sw.unchecked { background: white; border: 1px solid var(--line); }
+  .legend-row .sw.correct { background: var(--green); }
+  .legend-row .sw.mismatch { background: var(--red); }
+  .legend-row .right strong { color: var(--ink); }
+
+  /* ========== NEGATIVES (Step 2) ========== */
+  .neg-toolbar {
+    display: flex; gap: 12px; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .neg-toolbar .left { display: flex; gap: 8px; align-items: center; }
+  .neg-toolbar .tab {
+    padding: 7px 14px;
+    font-size: 11px; letter-spacing: 1.5px; font-weight: 700;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .neg-toolbar .tab.active { background: var(--ink); color: white; }
+  .neg-toolbar .right .btn {
+    background: var(--red); color: white;
+    padding: 8px 14px; border-radius: 6px; font-size: 11px; letter-spacing: 1px;
+    border: 0; cursor: pointer; font-weight: 800; text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(196,30,58,0.25);
+  }
+
+  .neg-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: var(--paper);
+  }
+  .neg-card .head {
+    padding: 12px 18px;
+    background: var(--soft);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 90px 110px 100px;
+    gap: 14px;
+    align-items: center;
+  }
+  .neg-card .creditor { font-size: 14px; font-weight: 800; }
+  .neg-card .acct { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+  .neg-card .badge {
+    font-size: 9px; padding: 3px 8px; border-radius: 999px; font-weight: 800; letter-spacing: 1px;
+    text-align: center;
+  }
+  .neg-card .badge.b3 { background: rgba(196,30,58,0.12); color: var(--red); }
+  .neg-card .badge.b2 { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .neg-card .badge.b1 { background: rgba(107,114,128,0.12); color: var(--muted); }
+  .neg-card .stat { font-size: 10px; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
+  .neg-card .stat.d { color: var(--red); }
+  .neg-card .stat.l { color: var(--amber); }
+  .neg-card .select-all {
+    background: var(--paper); border: 1px solid var(--line);
+    padding: 6px 10px; border-radius: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .neg-card .select-all.on { background: var(--red); color: white; border-color: var(--red); }
+  .neg-card .body {
+    display: grid;
+    grid-template-columns: 130px 1fr 1fr 1fr;
+  }
+  .neg-card .body .lbl-cell {
+    padding: 12px 14px;
+    font-size: 10px; color: var(--muted); letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase;
+    background: var(--soft);
+    border-right: 1px solid var(--line);
+    border-top: 1px solid var(--line-soft);
+    display: flex; align-items: center;
+  }
+  .neg-card .body .b-cell {
+    padding: 12px 14px;
+    border-right: 1px solid var(--line-soft);
+    border-top: 1px solid var(--line-soft);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .neg-card .body .b-cell:nth-child(4n+4) { border-right: 0; }
+  .neg-card .body .b-cell .v { font-weight: 700; }
+  .neg-card .body .b-cell .v.derog { color: var(--red); }
+  .neg-card .body .b-cell .v.late { color: var(--amber); }
+  .neg-card .body .b-cell .v.na { color: var(--muted-2); font-weight: 500; font-style: italic; }
+  .neg-card .body .b-cell .check {
+    width: 14px; height: 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 3px;
+    background: white;
+    color: transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .neg-card .body .b-cell.disputed { background: rgba(196,30,58,0.04); }
+  .neg-card .body .b-cell.disputed .check { background: var(--red); border-color: var(--red); color: white; }
+  .neg-card .body .b-cell.na-cell { background: var(--soft); cursor: not-allowed; }
+
+  /* ========== DOCUMENTS (Step 3) ========== */
+  .doc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .doc-row .doc {
+    border: 1.5px dashed var(--line);
+    background: var(--soft);
+    border-radius: 10px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .doc-row .doc.filled {
+    border-style: solid; border-color: var(--green);
+    background: rgba(16,185,129,0.03);
+  }
+  .doc-row .doc:hover { border-color: var(--red); transform: translateY(-1px); }
+  .doc-row .doc .ico { width: 28px; height: 28px; color: var(--ink); margin-bottom: 6px; display: inline-block; }
+  .doc-row .doc.filled .ico { color: var(--green); }
+  .doc-row .doc .name { font-size: 12px; font-weight: 800; }
+  .doc-row .doc .req { color: var(--red); margin-left: 2px; }
+  .doc-row .doc .hint { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px; }
+  .doc-row .doc .stamp {
+    display: inline-block; margin-top: 8px;
+    padding: 3px 9px; background: var(--green); color: white;
+    font-size: 8px; letter-spacing: 1px; font-weight: 800; border-radius: 3px;
+  }
+  .alt-list {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--soft);
+    border-radius: 8px;
+    border-left: 3px solid var(--red);
+  }
+  .alt-list .h { font-size: 10px; letter-spacing: 2px; color: var(--red); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+  .alt-list ul { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 16px; }
+  .alt-list li { font-size: 11px; color: var(--ink); padding: 2px 0; display: flex; align-items: center; gap: 6px; }
+  .alt-list li::before { content: ''; width: 4px; height: 4px; background: var(--red); border-radius: 50%; flex-shrink: 0; }
+
+  /* ========== BUREAU LOGINS (Step 4) ========== */
+  .bureau-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .bureau-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    background: var(--paper);
+  }
+  .bureau-card.connected { border-color: var(--green); background: rgba(16,185,129,0.03); }
+  .bureau-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .bureau-card .name { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .bureau-card .stat {
+    font-size: 9px; padding: 3px 8px; border-radius: 999px;
+    background: var(--line); color: var(--muted); font-weight: 800; letter-spacing: 1px;
+  }
+  .bureau-card.connected .stat { background: var(--green); color: white; }
+  .bureau-card label { display: block; font-size: 9px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800; margin: 8px 0 4px; }
+  .bureau-card input { width: 100%; padding: 8px 11px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; font-family: 'Montserrat', sans-serif; background: white; }
+  .bureau-card input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 2px rgba(196,30,58,0.1); }
+  .bureau-card .btn-connect {
+    margin-top: 12px; width: 100%;
+    padding: 9px; background: var(--ink); color: white;
+    border: 0; border-radius: 6px;
+    font-weight: 800; font-size: 10px; letter-spacing: 1.5px;
+    cursor: pointer; text-transform: uppercase;
+  }
+  .bureau-card.connected .btn-connect { background: var(--green); }
+  .bureau-card .free-link {
+    display: block; margin-top: 8px;
+    font-size: 10px; color: var(--muted);
+    text-align: center;
+    text-decoration: none;
+    font-style: italic;
+  }
+  .bureau-card .free-link:hover { color: var(--red); }
+  .pin-hint {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--amber);
+    margin-top: 6px;
+  }
+
+  /* ========== REVIEW & SUBMIT (Step 5) ========== */
+  .review-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    background: var(--paper);
+  }
+  .review-card .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 12px;
+  }
+  .review-card .row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .review-card .row .lbl { color: var(--muted); letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; font-size: 10px; }
+  .review-card .row .v { font-weight: 700; }
+  .review-card .row .v.green { color: var(--green); }
+  .review-card .row .v.red { color: var(--red); }
+  .review-card .h-card { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .review-card .h-card .h { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+  .review-card .h-card .edit { font-size: 10px; color: var(--red); font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ========== MONITORING (Step 6) ========== */
+  .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .what-next {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 22px;
+  }
+  .what-next .h { font-size: 12px; letter-spacing: 2px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .what-next .step-row {
+    display: grid; grid-template-columns: 28px 1fr; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--line-soft);
+    align-items: start;
+  }
+  .what-next .step-row:last-child { border-bottom: 0; }
+  .what-next .step-row .n {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--red); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800;
+  }
+  .what-next .step-row .t { font-size: 12px; font-weight: 700; }
+  .what-next .step-row .d { font-size: 10.5px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+
+  .resource-list .res {
+    display: flex; gap: 10px; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .resource-list .res:last-child { border-bottom: 0; }
+  .resource-list .res .icon-box {
+    width: 30px; height: 30px;
+    background: var(--ink); color: white;
+    border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+  }
+  .resource-list .res .n-block { flex: 1; }
+  .resource-list .res .n { font-size: 12px; font-weight: 700; }
+  .resource-list .res .d { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  /* ========== BOTTOM NAV (matches CreditRepairClientFlow) ========== */
+  .step-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 18px;
+  }
+  .btn-back, .btn-next, .btn-submit {
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer;
+    border: 0;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.12s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-back { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn-back:hover { background: var(--soft); }
+  .btn-next { background: var(--red); color: white; box-shadow: 0 6px 18px rgba(196,30,58,0.25); }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(196,30,58,0.35); }
+  .btn-submit { background: var(--ink); color: white; box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+  .btn-submit:hover { transform: translateY(-1px); }
+
+  .footnote { margin-top: 22px; font-size: 9.5px; color: var(--muted); text-align: center; line-height: 1.6; padding-bottom: 36px; letter-spacing: 0.4px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ========== STICKY STEPPER ========== -->
+<div class="stepper">
+  <div class="container stepper-inner">
+    <div class="sb-brand">
+      <img src="memelli-logo.png" alt="Memelli">
+      <span class="div"></span>
+      <span class="label">CREDIT REPAIR · MEMBER FLOW</span>
+    </div>
+    <span class="sb-pill" id="step-counter">STEP 1 OF 6</span>
+  </div>
+  <div class="container step-rail" id="step-rail">
+    <span class="step-pip active" data-step="1"><span class="dot">1</span><span class="lbl">Personal Info</span><span class="connector"></span></span>
+    <span class="step-pip" data-step="2"><span class="dot">2</span><span class="lbl">Negatives</span><span class="connector"></span></span>
+    <span class="step-pip" data-step="3"><span class="dot">3</span><span class="lbl">Documents</span><span class="connector"></span></span>
+    <span class="step-pip" data-step="4"><span class="dot">4</span><span class="lbl">Bureau Logins</span><span class="connector"></span></span>
+    <span class="step-pip" data-step="5"><span class="dot">5</span><span class="lbl">Review &amp; Submit</span><span class="connector"></span></span>
+    <span class="step-pip" data-step="6"><span class="dot">6</span><span class="lbl">Monitoring</span></span>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom: 40px;">
+
+  <!-- ========== EDITORIAL HERO ========== -->
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">CREDIT REPAIR · MEMBER FLOW</div>
+        <h1>Your <span class="red-em">Credit</span> Report.</h1>
+        <div class="sub">Walk through it. Flag what's wrong. We file. You watch the score climb.</div>
+      </div>
+      <div class="meta">
+        STARTED <span class="v">05/01/2026</span><br>
+        MEMBER <span class="v">ALEX REYES</span><br>
+        ROUND <span class="v">1 OF 4</span>
+      </div>
+    </div>
+    <div class="hero-bars">
+      <div class="hero-red">// EQ &nbsp;·&nbsp; EX &nbsp;·&nbsp; TU //</div>
+      <div class="hero-gray">FCRA §1681i · FDCPA §809</div>
+    </div>
+    <div class="hero-strip">
+      <span>MEMELLI . COM / REPAIR</span>
+      <span>EST. SUBMIT · <span class="v">~6 MIN</span></span>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- STEP 1 — PERSONAL INFO                                          -->
+  <!-- ============================================================== -->
+  <section class="step-pane" data-pane="1">
+    <div class="step-title">
+      <div class="small">Step 1 of 6</div>
+      <h2>Personal Info</h2>
+      <p>Each bureau may carry different versions of your name, date of birth, address, or employer. Mark each cell <strong>correct</strong> or flag a <strong>mismatch</strong>. Mismatches become disputable items in this round.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="row-top">
+        <span class="h-l">4 fields × 3 bureaus · 12 cells to review</span>
+        <span class="sb-pill" id="step1-count">2 mismatches flagged</span>
+      </div>
+
+      <div class="tri-grid" id="tri1">
+        <div class="hdr lbl-hdr"></div>
+        <div class="hdr">Equifax</div>
+        <div class="hdr">Experian</div>
+        <div class="hdr">TransUnion</div>
+
+        <!-- field: name -->
+        <div class="lbl-cell">Name</div>
+        <div class="cell correct"><div class="val">Alex James Reyes</div><span class="state-tag t-correct">Correct</span></div>
+        <div class="cell mismatch"><div class="val">Alex Rayes <span class="small">(misspelled)</span></div><span class="state-tag t-mismatch">Mismatch</span></div>
+        <div class="cell correct"><div class="val">Alex James Reyes</div><span class="state-tag t-correct">Correct</span></div>
+
+        <!-- field: dob -->
+        <div class="lbl-cell">Date of birth</div>
+        <div class="cell correct"><div class="val mono">06/14/1989</div><span class="state-tag t-correct">Correct</span></div>
+        <div class="cell correct"><div class="val mono">06/14/1989</div><span class="state-tag t-correct">Correct</span></div>
+        <div class="cell correct"><div class="val mono">06/14/1989</div><span class="state-tag t-correct">Correct</span></div>
+
+        <!-- field: address -->
+        <div class="lbl-cell">Current address</div>
+        <div class="cell correct"><div class="val">2418 Springdale Rd #12B<span class="small">Austin, TX 78702</span></div><span class="state-tag t-correct">Correct</span></div>
+        <div class="cell mismatch"><div class="val">8810 N Mopac Expy <span class="small" style="color:var(--red);">(not mine)</span><span class="small">Austin, TX 78759</span></div><span class="state-tag t-mismatch">Mismatch</span></div>
+        <div class="cell correct"><div class="val">2418 Springdale Rd #12B<span class="small">Austin, TX 78702</span></div><span class="state-tag t-correct">Correct</span></div>
+
+        <!-- field: employer -->
+        <div class="lbl-cell">Employer</div>
+        <div class="cell unchecked"><div class="val">Cirrus Logic Inc<span class="small">Sr. Software Engineer</span></div><span class="state-tag t-correct">Correct</span><span class="state-tag t-mismatch">Mismatch</span></div>
+        <div class="cell unchecked"><div class="val">Cirrus Logic Inc<span class="small">Sr. Software Engineer</span></div><span class="state-tag t-correct">Correct</span><span class="state-tag t-mismatch">Mismatch</span></div>
+        <div class="cell unchecked"><div class="val">Cirrus Logic<span class="small" style="color:var(--amber);">(name shortened — review)</span></div><span class="state-tag t-correct">Correct</span><span class="state-tag t-mismatch">Mismatch</span></div>
+      </div>
+
+      <div class="legend-row">
+        <div class="legend">
+          <div class="item"><span class="sw unchecked"></span>Click to confirm</div>
+          <div class="item"><span class="sw correct"></span>Correct</div>
+          <div class="item"><span class="sw mismatch"></span>Mismatch · dispute-ready</div>
+        </div>
+        <div class="right">Each click cycles state · <strong>2 flagged</strong> for dispute</div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <span></span>
+      <button class="btn-next" data-go="2">Continue · Negatives <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- STEP 2 — NEGATIVES                                              -->
+  <!-- ============================================================== -->
+  <section class="step-pane hidden" data-pane="2">
+    <div class="step-title">
+      <div class="small">Step 2 of 6</div>
+      <h2>Negative Items</h2>
+      <p>Negatives aligned across all three bureaus. Match badge per row tells you how many bureaus reported the same item. Tap any cell to flag it for dispute, or use Select-all to flag every reporting bureau at once.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="neg-toolbar">
+        <div class="left">
+          <span class="tab active">Negatives <strong>· 3</strong></span>
+          <span class="tab">Other items · 2</span>
+        </div>
+        <div class="right">
+          <button class="btn">Select Everything</button>
+        </div>
+      </div>
+
+      <!-- Negative #1: Verizon Collection — 2/3 match -->
+      <div class="neg-card">
+        <div class="head">
+          <div>
+            <div class="creditor">Verizon Collection · LVNV Funding</div>
+            <div class="acct">XXXX2104 · COLLECTION · OPENED 08/2024</div>
+          </div>
+          <span class="badge b2">2/3</span>
+          <span class="stat d">$486 · COLLECTION</span>
+          <button class="select-all">Select all 2</button>
+        </div>
+        <div class="body">
+          <div class="lbl-cell">Reporting</div>
+          <div class="b-cell disputed"><span>Reported · $486</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+          <div class="b-cell disputed"><span>Reported · $486</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+          <div class="b-cell na-cell"><span class="v na">Not reported</span></div>
+        </div>
+      </div>
+
+      <!-- Negative #2: Capital One late — 2/3 match -->
+      <div class="neg-card">
+        <div class="head">
+          <div>
+            <div class="creditor">Capital One Platinum</div>
+            <div class="acct">XXXX-XXXX-XXXX-4029 · REVOLVING · OPENED 11/2021</div>
+          </div>
+          <span class="badge b2">2/3</span>
+          <span class="stat l">2 LATES · 30D</span>
+          <button class="select-all">Select all 2</button>
+        </div>
+        <div class="body">
+          <div class="lbl-cell">Reporting</div>
+          <div class="b-cell disputed"><span>1× 30-day late · 02/2025</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+          <div class="b-cell disputed"><span>1× 30-day late · 02/2025</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+          <div class="b-cell"><span>No lates reported</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+        </div>
+      </div>
+
+      <!-- Negative #3: Old Navy charge-off — 1/3 match -->
+      <div class="neg-card">
+        <div class="head">
+          <div>
+            <div class="creditor">Old Navy / Synchrony Bank</div>
+            <div class="acct">XXXX5170 · CHARGE-OFF · OPENED 04/2019</div>
+          </div>
+          <span class="badge b1">1/3</span>
+          <span class="stat d">$1,205 · CHARGE-OFF</span>
+          <button class="select-all">Select 1</button>
+        </div>
+        <div class="body">
+          <div class="lbl-cell">Reporting</div>
+          <div class="b-cell na-cell"><span class="v na">Not reported</span></div>
+          <div class="b-cell na-cell"><span class="v na">Not reported</span></div>
+          <div class="b-cell"><span>Charge-off · $1,205</span><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px;"><path d="M5 12l5 5L20 7"/></svg></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" data-go="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 12H5M11 5l-7 7 7 7"/></svg> Back</button>
+      <button class="btn-next" data-go="3">Continue · Documents <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- STEP 3 — REQUIRED DOCUMENTS                                     -->
+  <!-- ============================================================== -->
+  <section class="step-pane hidden" data-pane="3">
+    <div class="step-title">
+      <div class="small">Step 3 of 6</div>
+      <h2>Required Documents</h2>
+      <p>Three IDs the bureaus require to process disputes. Drag and drop, or tap to upload. Replace any document that didn't capture cleanly.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="doc-row">
+        <div class="doc filled">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h5M14 13h4M14 16h3"/><path d="M5 16q1.5-2 4-2t4 2"/></svg>
+          <div class="name">Driver's License<span class="req">*</span></div>
+          <div class="hint">TX-DL-32184892.jpg</div>
+          <div class="stamp">UPLOADED · OCR PASS</div>
+        </div>
+        <div class="doc filled">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><path d="M7 14h6M7 17h4"/><circle cx="16.5" cy="15.5" r="1.5"/></svg>
+          <div class="name">Social Security Card<span class="req">*</span></div>
+          <div class="hint">ssn-card.jpg</div>
+          <div class="stamp">UPLOADED · VERIFIED</div>
+        </div>
+        <div class="doc">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+          <div class="name">Proof of Address<span class="req">*</span></div>
+          <div class="hint">Drag &amp; drop · or tap to upload</div>
+        </div>
+      </div>
+
+      <div class="alt-list">
+        <div class="h">9 alternates accepted for proof of address</div>
+        <ul>
+          <li>Utility bill (last 60d)</li>
+          <li>Bank statement (last 60d)</li>
+          <li>Mortgage statement</li>
+          <li>Lease agreement</li>
+          <li>Property tax statement</li>
+          <li>Voter registration card</li>
+          <li>Vehicle registration</li>
+          <li>Insurance bill</li>
+          <li>W-2 / 1099 (current year)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" data-go="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 12H5M11 5l-7 7 7 7"/></svg> Back</button>
+      <button class="btn-next" data-go="4">Continue · Bureau Logins <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- STEP 4 — BUREAU LOGINS                                          -->
+  <!-- ============================================================== -->
+  <section class="step-pane hidden" data-pane="4">
+    <div class="step-title">
+      <div class="small">Step 4 of 6</div>
+      <h2>Bureau Logins</h2>
+      <p>Read-only logins so we can pull dispute status from each bureau. Credentials are AES-encrypted at rest. No account? Use the free dispute-center link instead.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="bureau-row">
+        <div class="bureau-card">
+          <div class="head"><span class="name">Equifax</span><span class="stat">Not connected</span></div>
+          <label>Username</label>
+          <input type="text" placeholder="myEFX login">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••">
+          <button class="btn-connect">Connect Equifax</button>
+          <a class="free-link" href="#">Or file free at equifax.com/dispute →</a>
+        </div>
+        <div class="bureau-card">
+          <div class="head"><span class="name">Experian</span><span class="stat">Not connected</span></div>
+          <label>Username</label>
+          <input type="text" placeholder="experian.com login">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••">
+          <label>Experian Security PIN</label>
+          <input type="text" placeholder="10-digit PIN" maxlength="10">
+          <div class="pin-hint">Mailed by Experian — required for online disputes.</div>
+          <button class="btn-connect">Connect Experian</button>
+          <a class="free-link" href="#">Or file free at experian.com/disputes →</a>
+        </div>
+        <div class="bureau-card connected">
+          <div class="head"><span class="name">TransUnion</span><span class="stat">Connected</span></div>
+          <label>Username</label>
+          <input type="text" value="alex.reyes@gmail.com" readonly>
+          <label>Password</label>
+          <input type="password" value="••••••••" readonly>
+          <button class="btn-connect">Connected</button>
+          <a class="free-link" href="#">tui.transunion.com →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" data-go="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 12H5M11 5l-7 7 7 7"/></svg> Back</button>
+      <button class="btn-next" data-go="5">Continue · Review &amp; Submit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- STEP 5 — REVIEW & SUBMIT                                        -->
+  <!-- ============================================================== -->
+  <section class="step-pane hidden" data-pane="5">
+    <div class="step-title">
+      <div class="small">Step 5 of 6</div>
+      <h2>Review &amp; Submit</h2>
+      <p>Final review — like a loan application. Once you submit, the round fires to the operator queue. Letters draft, validation chains start, bureau filings go live within 24 hours.</p>
+    </div>
+
+    <div class="step-card">
+
+      <div class="review-card">
+        <div class="h-card"><span class="h">1 · Personal Info</span><span class="edit" data-go="1">Edit</span></div>
+        <div class="row"><span class="lbl">Mismatches flagged</span><span class="v red">2 of 12 cells</span></div>
+        <div class="row"><span class="lbl">Disputable</span><span class="v">EX · Name (misspelled) &nbsp;·&nbsp; EX · Prior Address (not mine)</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="h-card"><span class="h">2 · Negative Items</span><span class="edit" data-go="2">Edit</span></div>
+        <div class="row"><span class="lbl">Items selected</span><span class="v red">3 of 3 negatives</span></div>
+        <div class="row"><span class="lbl">Bureaus targeted</span><span class="v">EQ · EX · TU</span></div>
+        <div class="row"><span class="lbl">Total cells filing</span><span class="v">5 dispute filings</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="h-card"><span class="h">3 · Documents</span><span class="edit" data-go="3">Edit</span></div>
+        <div class="row"><span class="lbl">Driver's License</span><span class="v green">Uploaded</span></div>
+        <div class="row"><span class="lbl">Social Security Card</span><span class="v green">Uploaded</span></div>
+        <div class="row"><span class="lbl">Proof of Address</span><span class="v red">Pending</span></div>
+      </div>
+
+      <div class="review-card">
+        <div class="h-card"><span class="h">4 · Bureau Logins</span><span class="edit" data-go="4">Edit</span></div>
+        <div class="row"><span class="lbl">Equifax</span><span class="v red">Not connected</span></div>
+        <div class="row"><span class="lbl">Experian</span><span class="v red">Not connected (PIN required)</span></div>
+        <div class="row"><span class="lbl">TransUnion</span><span class="v green">Connected</span></div>
+      </div>
+
+      <div class="review-card" style="background: var(--ink); color: white; border-color: var(--ink);">
+        <div class="h-card" style="border-bottom-color: rgba(255,255,255,0.1);"><span class="h" style="color:white;">5 · Round Summary</span><span class="edit" style="color: var(--red);">Round 1 of 4</span></div>
+        <div class="row" style="border-bottom-color: rgba(255,255,255,0.06);"><span class="lbl" style="color: rgba(255,255,255,0.6);">Total disputes filing</span><span class="v" style="color: var(--red);">7 disputes</span></div>
+        <div class="row" style="border-bottom-color: rgba(255,255,255,0.06);"><span class="lbl" style="color: rgba(255,255,255,0.6);">Bureaus to receive</span><span class="v" style="color: white;">EQ · EX · TU</span></div>
+        <div class="row" style="border-bottom-color: rgba(255,255,255,0.06);"><span class="lbl" style="color: rgba(255,255,255,0.6);">First reply expected</span><span class="v" style="color: white;">06/15/2026 – 06/30/2026</span></div>
+        <div class="row"><span class="lbl" style="color: rgba(255,255,255,0.6);">Authority cited</span><span class="v italic" style="color: white; font-weight: 500;">FCRA §1681i · FDCPA §809</span></div>
+      </div>
+
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" data-go="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 12H5M11 5l-7 7 7 7"/></svg> Back</button>
+      <button class="btn-submit" data-go="6">Fire Round 1 →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- STEP 6 — MONITORING                                             -->
+  <!-- ============================================================== -->
+  <section class="step-pane hidden" data-pane="6">
+    <div class="step-title">
+      <div class="small">Step 6 of 6</div>
+      <h2>Monitoring Overview</h2>
+      <p>You're live. Here's what happens next — and a few free tools to watch your score on the way up.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="monitor-grid">
+        <div class="what-next">
+          <div class="h">What happens next</div>
+          <div class="step-row">
+            <span class="n">1</span>
+            <div>
+              <div class="t">Letters draft within hours</div>
+              <div class="d">Round 1 dispute letters draft for each bureau using the items you flagged. Operator reviews + queues for filing.</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="n">2</span>
+            <div>
+              <div class="t">Bureaus respond within 30 days</div>
+              <div class="d">By federal law (FCRA §1681i), each bureau has 30 days to respond. We'll notify you the moment a response lands.</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="n">3</span>
+            <div>
+              <div class="t">Verification codes by SMS</div>
+              <div class="d">Bureaus may text verification codes to your phone. Forward them to <span class="mono" style="color:var(--red);">verify@memelli.com</span> or paste in your dashboard.</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <span class="n">4</span>
+            <div>
+              <div class="t">Round 2 plans automatically</div>
+              <div class="d">Whatever doesn't clear in Round 1, we re-strategize for Round 2 with stronger reasons (MOV, validation, CFPB). Up to 4 rounds covered.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="what-next">
+          <div class="h">Free credit monitoring · use any of these</div>
+          <div class="resource-list">
+            <div class="res">
+              <span class="icon-box">CK</span>
+              <div class="n-block">
+                <div class="n">Credit Karma</div>
+                <div class="d">Free TransUnion + Equifax score updates · weekly</div>
+              </div>
+            </div>
+            <div class="res">
+              <span class="icon-box">EX</span>
+              <div class="n-block">
+                <div class="n">Experian Free</div>
+                <div class="d">Free Experian FICO 8 + report · monthly</div>
+              </div>
+            </div>
+            <div class="res">
+              <span class="icon-box">CS</span>
+              <div class="n-block">
+                <div class="n">CreditWise (Capital One)</div>
+                <div class="d">Free TransUnion VantageScore · no card required</div>
+              </div>
+            </div>
+            <div class="res">
+              <span class="icon-box">AC</span>
+              <div class="n-block">
+                <div class="n">AnnualCreditReport.com</div>
+                <div class="d">Federal-mandated free report · all 3 bureaus weekly</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:10px 14px;background:rgba(196,30,58,0.06);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:11px;line-height:1.5;">
+            <strong style="color:var(--red);">Heads up:</strong> Don't pay for monitoring. Every reputable score-tracker has a free tier — Memelli pulls your live data so you don't have to.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" data-go="5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 12H5M11 5l-7 7 7 7"/></svg> Back</button>
+      <button class="btn-submit">Open My Dashboard →</button>
+    </div>
+  </section>
+
+  <div class="footnote">
+    Memelli is not a credit bureau · Disputes filed under FCRA §1681i and FDCPA §809 · By submitting you authorize Memelli to act as your designated representative for the items selected · All correspondence appears consumer-authored on your behalf.
+  </div>
+
+</div>
+
+<script>
+  // ===== STEPPER NAVIGATION =====
+  const STEP_TOTAL = 6;
+  let currentStep = 1;
+  function goToStep(n) {
+    n = Math.max(1, Math.min(STEP_TOTAL, parseInt(n, 10)));
+    currentStep = n;
+    // panes
+    document.querySelectorAll('.step-pane').forEach(p => {
+      p.classList.toggle('hidden', String(p.dataset.pane) !== String(n));
+    });
+    // pips
+    document.querySelectorAll('.step-pip').forEach(p => {
+      const i = parseInt(p.dataset.step, 10);
+      p.classList.toggle('done', i < n);
+      p.classList.toggle('active', i === n);
+    });
+    document.getElementById('step-counter').textContent = `STEP ${n} OF ${STEP_TOTAL}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  // wire all data-go buttons
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-go]');
+    if (!t) return;
+    e.preventDefault();
+    goToStep(t.dataset.go);
+  });
+  // wire pip clicks
+  document.querySelectorAll('.step-pip').forEach(pip => {
+    pip.addEventListener('click', () => goToStep(pip.dataset.step));
+  });
+
+  // ===== STEP 1 — TRI-BUREAU CELL CYCLE =====
+  // unchecked → correct → mismatch → unchecked
+  function cycleCellState(cell) {
+    const states = ['unchecked', 'correct', 'mismatch'];
+    const i = states.findIndex(s => cell.classList.contains(s));
+    cell.classList.remove(...states);
+    cell.classList.add(states[(i + 1) % 3]);
+    recountStep1();
+  }
+  function recountStep1() {
+    const flagged = document.querySelectorAll('#tri1 .cell.mismatch').length;
+    const el = document.getElementById('step1-count');
+    if (el) el.textContent = `${flagged} mismatch${flagged === 1 ? '' : 'es'} flagged`;
+  }
+  document.querySelectorAll('#tri1 .cell').forEach(cell => {
+    cell.addEventListener('click', () => cycleCellState(cell));
+  });
+
+  // ===== STEP 2 — NEGATIVE ITEM CELL TOGGLE + SELECT-ALL =====
+  document.querySelectorAll('.neg-card .body .b-cell').forEach(cell => {
+    if (cell.classList.contains('na-cell')) return;
+    cell.addEventListener('click', () => {
+      cell.classList.toggle('disputed');
+    });
+  });
+  document.querySelectorAll('.neg-card .select-all').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.neg-card');
+      const cells = card.querySelectorAll('.body .b-cell:not(.na-cell)');
+      const allOn = Array.from(cells).every(c => c.classList.contains('disputed'));
+      cells.forEach(c => c.classList.toggle('disputed', !allOn));
+      btn.classList.toggle('on', !allOn);
+      btn.textContent = allOn ? `Select all ${cells.length}` : 'Deselect all';
+    });
+  });
+
+  // ===== STEP 2 — TAB SWITCH =====
+  document.querySelectorAll('.neg-toolbar .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.neg-toolbar .tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
