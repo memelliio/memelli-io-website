@@ -1,7 +1,5 @@
 "use client";
 
-
-import { PartnerLogo } from "@/app/_components/PartnerLogo";
 import { useEffect } from "react";
 import { ArrowRight, Check, Terminal, FileText, X } from "lucide-react";
 import { useWindowStore } from "../_lib/window-store";
@@ -15,8 +13,9 @@ import {
   Typewriter,
   type RevealVariant,
 } from "@/components/anim";
+import { useIsMobileSurface } from "../_lib/viewport-preview-store";
 
-const RED = "var(--brand-color, #C41E3A)";
+const RED = "#C41E3A";
 const RED_2 = "#A8182F";
 const INK = "#0B0B0F";
 const INK_2 = "#1A1A1F";
@@ -54,6 +53,7 @@ export function ModulePitchModal({
   onClose: () => void;
 }) {
   const openWindow = useWindowStore((s) => s.open);
+  const narrow = useIsMobileSurface();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -81,6 +81,26 @@ export function ModulePitchModal({
     }
   };
 
+  // Lock background scroll while modal is open so iOS doesn't slide the
+  // page under the backdrop when the user taps inside the dialog.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const body = document.body;
+    const prev = {
+      overflow: body.style.overflow,
+      touchAction: body.style.touchAction,
+      overscroll: body.style.overscrollBehavior,
+    };
+    body.style.overflow = "hidden";
+    body.style.touchAction = "none";
+    body.style.overscrollBehavior = "none";
+    return () => {
+      body.style.overflow = prev.overflow;
+      body.style.touchAction = prev.touchAction;
+      body.style.overscrollBehavior = prev.overscroll;
+    };
+  }, []);
+
   return (
     <div
       role="dialog"
@@ -88,25 +108,30 @@ export function ModulePitchModal({
       aria-label={pitch.headline}
       onClick={onClose}
       style={{
+        // Fixed so it covers the actual device viewport on real phones,
+        // not just the nearest positioned ancestor (which is the OS shell).
         position: "fixed",
         inset: 0,
-        background: "rgba(11,11,15,0.55)",
+        background: "rgba(11,11,15,0.62)",
         backdropFilter: "blur(6px)",
         zIndex: 999999,
         display: "grid",
         placeItems: "center",
-        padding: 24,
+        padding: narrow ? 8 : 24,
         fontFamily: FONT,
+        overscrollBehavior: "contain",
       }}
     >
       <Reveal
         variant={LAYOUT_REVEAL[pitch.layout]}
         duration={620}
         style={{
-          width: "min(95vw, 1180px)",
-          minWidth: "60vw",
-          minHeight: "60vh",
-          maxHeight: "90vh",
+          width: narrow ? "calc(100vw - 16px)" : "min(95vw, 1180px)",
+          minWidth: narrow ? undefined : "60vw",
+          minHeight: narrow ? undefined : "60vh",
+          maxHeight: narrow ? "calc(100vh - 16px)" : "90vh",
+          overflow: narrow ? "auto" : undefined,
+          WebkitOverflowScrolling: "touch",
           position: "relative",
         }}
       >
@@ -135,16 +160,16 @@ export function ModulePitchModal({
           </button>
 
           {pitch.layout === "split-red" && (
-            <SplitRedLayout pitch={pitch} onAction={handleAction} />
+            <SplitRedLayout pitch={pitch} onAction={handleAction} narrow={narrow} />
           )}
           {pitch.layout === "money-tower" && (
-            <MoneyTowerLayout pitch={pitch} onAction={handleAction} />
+            <MoneyTowerLayout pitch={pitch} onAction={handleAction} narrow={narrow} />
           )}
           {pitch.layout === "terminal-card" && (
-            <TerminalCardLayout pitch={pitch} onAction={handleAction} />
+            <TerminalCardLayout pitch={pitch} onAction={handleAction} narrow={narrow} />
           )}
           {pitch.layout === "tri-stack" && (
-            <TriStackLayout pitch={pitch} onAction={handleAction} />
+            <TriStackLayout pitch={pitch} onAction={handleAction} narrow={narrow} />
           )}
         </div>
       </Reveal>
@@ -155,12 +180,13 @@ export function ModulePitchModal({
 type LayoutProps = {
   pitch: ModulePitch;
   onAction: (action: ModulePitch["primaryCta"]["action"]) => void;
+  narrow: boolean;
 };
 
 // ─────────────────────────────────────────────────────────────────────
 // LAYOUT 1 — split-red — dissolve entrance, CountUp on hero, stagger bullets
 // ─────────────────────────────────────────────────────────────────────
-function SplitRedLayout({ pitch, onAction }: LayoutProps) {
+function SplitRedLayout({ pitch, onAction, narrow }: LayoutProps) {
   // For PreQual the heroValue is "60s" — we animate 0→60 with "s" suffix.
   const isCountable = /^\d+/.test(pitch.heroValue);
   const targetN = isCountable ? parseInt(pitch.heroValue, 10) : 0;
@@ -176,14 +202,14 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
         overflow: "hidden",
         boxShadow: SHADOW,
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        height: "100%",
-        minHeight: "60vh",
+        gridTemplateColumns: narrow ? "1fr" : "1fr 1fr",
+        height: narrow ? "auto" : "100%",
+        minHeight: narrow ? undefined : "60vh",
       }}
     >
       <div
         style={{
-          padding: "40px 36px 32px",
+          padding: narrow ? "22px 20px 18px" : "40px 36px 32px",
           display: "flex",
           flexDirection: "column",
           gap: 18,
@@ -215,11 +241,11 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
         style={{
           background: `linear-gradient(135deg, ${RED} 0%, ${RED_2} 100%)`,
           color: PAPER,
-          padding: "32px 32px 28px",
+          padding: narrow ? "20px 20px 22px" : "32px 32px 28px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          gap: 18,
+          gap: narrow ? 14 : 18,
           position: "relative",
           overflow: "hidden",
         }}
@@ -238,7 +264,11 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
               gap: 10,
             }}
           >
-            <PartnerLogo alt="Memelli" style={{ ...LOGO_STYLE, height: 44, maxWidth: 150 }} />
+            <img
+              src="/memelli-logo-white.png"
+              alt="Memelli"
+              style={{ ...LOGO_STYLE, height: 44, maxWidth: 150 }}
+            />
             <span
               style={{
                 fontFamily:
@@ -279,7 +309,7 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
               padding: "8px 0",
             }}
           >
-            <ProgressRing seconds={isCountable ? targetN : 60} />
+            <ProgressRing seconds={isCountable ? targetN : 60} narrow={narrow} />
           </div>
         </FadeIn>
 
@@ -382,9 +412,9 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
 }
 
 // PreQual progress ring — animated SVG arc + numeric counter inside
-function ProgressRing({ seconds }: { seconds: number }) {
-  const size = 168;
-  const stroke = 9;
+function ProgressRing({ seconds, narrow = false }: { seconds: number; narrow?: boolean }) {
+  const size = narrow ? 124 : 168;
+  const stroke = narrow ? 7 : 9;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -434,7 +464,7 @@ function ProgressRing({ seconds }: { seconds: number }) {
         <div style={{ textAlign: "center" }}>
           <div
             style={{
-              fontSize: 56,
+              fontSize: narrow ? 40 : 56,
               fontWeight: 900,
               letterSpacing: "-0.04em",
               lineHeight: 1,
@@ -443,7 +473,7 @@ function ProgressRing({ seconds }: { seconds: number }) {
             }}
           >
             <CountUp to={seconds} duration={1600} delay={250} />
-            <span style={{ fontSize: 22, fontWeight: 700, marginLeft: 2 }}>
+            <span style={{ fontSize: narrow ? 16 : 22, fontWeight: 700, marginLeft: 2 }}>
               s
             </span>
           </div>
@@ -473,7 +503,7 @@ function ProgressRing({ seconds }: { seconds: number }) {
 // ─────────────────────────────────────────────────────────────────────
 // LAYOUT 2 — money-tower — giant CountUp $0 → $500K with K formatter
 // ─────────────────────────────────────────────────────────────────────
-function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
+function MoneyTowerLayout({ pitch, onAction, narrow }: LayoutProps) {
   // $500K → animate 0 → 500000 with $K formatter
   const moneyMatch = pitch.heroValue.match(/\$?([\d.,]+)([KkMm]?)/);
   const baseNum = moneyMatch ? parseFloat(moneyMatch[1].replace(/,/g, "")) : 0;
@@ -495,9 +525,9 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
         overflow: "hidden",
         boxShadow: SHADOW,
         display: "grid",
-        gridTemplateColumns: "1.1fr 1fr",
-        height: "100%",
-        minHeight: "60vh",
+        gridTemplateColumns: narrow ? "1fr" : "1.1fr 1fr",
+        height: narrow ? "auto" : "100%",
+        minHeight: narrow ? undefined : "60vh",
         position: "relative",
       }}
     >
@@ -506,7 +536,7 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
       {/* LEFT — money tower with animated counter */}
       <div
         style={{
-          padding: "44px 36px",
+          padding: narrow ? "24px 22px" : "44px 36px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
@@ -516,7 +546,11 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
         }}
       >
         <FadeIn delay={80}>
-          <PartnerLogo alt="Memelli" style={{ ...LOGO_STYLE, height: 52 }} />
+          <img
+            src="/memelli-logo-white.png"
+            alt="Memelli"
+            style={{ ...LOGO_STYLE, height: 52 }}
+          />
         </FadeIn>
 
         <div>
@@ -536,7 +570,7 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
           </FadeIn>
           <div
             style={{
-              fontSize: 132,
+              fontSize: narrow ? 56 : 132,
               fontWeight: 900,
               letterSpacing: "-0.06em",
               lineHeight: 0.85,
@@ -659,10 +693,10 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
       {/* RIGHT — pitch + bullets + CTA */}
       <div
         style={{
-          padding: "44px 36px 36px",
+          padding: narrow ? "20px 20px 22px" : "44px 36px 36px",
           display: "flex",
           flexDirection: "column",
-          gap: 16,
+          gap: 14,
           position: "relative",
           zIndex: 1,
         }}
@@ -673,7 +707,7 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
         <BlurIn delay={220}>
           <h2
             style={{
-              fontSize: 28,
+              fontSize: narrow ? 22 : 28,
               fontWeight: 800,
               letterSpacing: "-0.02em",
               margin: 0,
@@ -716,7 +750,7 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
 // ─────────────────────────────────────────────────────────────────────
 // LAYOUT 3 — terminal-card — typewriter logs streaming
 // ─────────────────────────────────────────────────────────────────────
-function TerminalCardLayout({ pitch, onAction }: LayoutProps) {
+function TerminalCardLayout({ pitch, onAction, narrow }: LayoutProps) {
   // Sequential typewriter delays per log line
   const baseDelay = 700;
   const lineGap = 320;
@@ -728,14 +762,14 @@ function TerminalCardLayout({ pitch, onAction }: LayoutProps) {
         overflow: "hidden",
         boxShadow: SHADOW,
         display: "grid",
-        gridTemplateColumns: "1fr 1.1fr",
-        height: "100%",
-        minHeight: "60vh",
+        gridTemplateColumns: narrow ? "1fr" : "1fr 1.1fr",
+        height: narrow ? "auto" : "100%",
+        minHeight: narrow ? undefined : "60vh",
       }}
     >
       <div
         style={{
-          padding: "40px 36px 32px",
+          padding: narrow ? "22px 20px 18px" : "40px 36px 32px",
           display: "flex",
           flexDirection: "column",
           gap: 16,
@@ -767,7 +801,7 @@ function TerminalCardLayout({ pitch, onAction }: LayoutProps) {
         style={{
           background: INK,
           color: PAPER,
-          padding: 28,
+          padding: narrow ? "20px 18px" : 28,
           display: "flex",
           flexDirection: "column",
           gap: 12,
@@ -968,7 +1002,7 @@ function TerminalCardLayout({ pitch, onAction }: LayoutProps) {
 // ─────────────────────────────────────────────────────────────────────
 // LAYOUT 4 — tri-stack — fan reveal of three bureau cards w/ score CountUp
 // ─────────────────────────────────────────────────────────────────────
-function TriStackLayout({ pitch, onAction }: LayoutProps) {
+function TriStackLayout({ pitch, onAction, narrow }: LayoutProps) {
   const bureaus: {
     name: string;
     score: number;
@@ -988,8 +1022,9 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
         boxShadow: SHADOW,
         display: "grid",
         gridTemplateRows: "auto 1fr",
-        height: "100%",
-        minHeight: "60vh",
+        height: narrow ? "auto" : "100%",
+        minHeight: narrow ? undefined : "60vh",
+        // bureau ledger uses tabular mono digits — shrink on phone
       }}
     >
       {/* Editorial ledger — one continuous black panel, three bureau slots
@@ -999,7 +1034,7 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
           background: INK,
           color: PAPER,
           position: "relative",
-          padding: "28px 36px 30px 50px",
+          padding: narrow ? "32px 14px 18px 22px" : "28px 36px 30px 50px",
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
           alignItems: "stretch",
@@ -1061,13 +1096,13 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
           >
             <div
               style={{
-                padding: "18px 22px",
+                padding: narrow ? "8px 8px" : "18px 22px",
                 borderLeft:
                   i === 0 ? "none" : "1px solid rgba(255,255,255,0.10)",
                 display: "flex",
                 flexDirection: "column",
-                gap: 10,
-                minHeight: 132,
+                gap: narrow ? 6 : 10,
+                minHeight: narrow ? 96 : 132,
                 position: "relative",
               }}
             >
@@ -1102,7 +1137,7 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
               </div>
               <div
                 style={{
-                  fontSize: 56,
+                  fontSize: narrow ? 22 : 56,
                   fontWeight: 900,
                   letterSpacing: "-0.04em",
                   color: PAPER,
@@ -1180,10 +1215,10 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
 
       <div
         style={{
-          padding: "32px 36px",
+          padding: narrow ? "20px 20px 22px" : "32px 36px",
           display: "grid",
-          gridTemplateColumns: "1.2fr 1fr",
-          gap: 32,
+          gridTemplateColumns: narrow ? "1fr" : "1.2fr 1fr",
+          gap: narrow ? 16 : 32,
           alignItems: "center",
         }}
       >
@@ -1245,7 +1280,7 @@ function Headline({ children }: { children: React.ReactNode }) {
   return (
     <h2
       style={{
-        fontSize: 32,
+        fontSize: "clamp(22px, 4.4vw, 32px)",
         fontWeight: 800,
         letterSpacing: "-0.02em",
         margin: 0,

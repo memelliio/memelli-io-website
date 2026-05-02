@@ -15,7 +15,7 @@ const ICONS_PER_PAGE = 24;
 const LONG_PRESS_MS = 500;
 
 const INK = "#0B0B0F";
-const RED = "var(--brand-color, #C41E3A)";
+const RED = "#C41E3A";
 const PAPER = "#FFFFFF";
 const MUTED = "#6B7280";
 const LINE = "#E5E7EB";
@@ -63,6 +63,38 @@ export function MobileHomeScreen() {
     };
     document.addEventListener("touchstart", onTouchOutside, { passive: true });
     return () => document.removeEventListener("touchstart", onTouchOutside);
+  }, [wiggle]);
+
+  // Lock body scroll while wiggling so the page doesn't slide as the
+  // user drags an icon. iOS treats touchmove as scroll otherwise.
+  useEffect(() => {
+    if (!wiggle) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      bodyTouchAction: body.style.touchAction,
+      bodyOverscroll: body.style.overscrollBehavior,
+    };
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.touchAction = "none";
+    body.style.overscrollBehavior = "none";
+    // Block native touchmove globally during wiggle (in passive:false form
+    // so preventDefault actually stops scroll).
+    const blockMove = (e: TouchEvent) => {
+      // Only block when the touch began on a cell that started a drag.
+      if (dragCellId.current) e.preventDefault();
+    };
+    document.addEventListener("touchmove", blockMove, { passive: false });
+    return () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.touchAction = prev.bodyTouchAction;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
+      document.removeEventListener("touchmove", blockMove);
+    };
   }, [wiggle]);
 
   // Mode-filter icons consistently for ALL surfaces (anon + logged-in).
@@ -366,6 +398,11 @@ export function MobileHomeScreen() {
           paddingTop: isBusiness ? 12 : 24,
           paddingBottom: 18,
           overflow: "hidden",
+          // Allow horizontal pan for page swipe; block vertical native
+          // scroll so the iOS URL bar doesn't expand/contract under drag.
+          // While wiggling, block all touch panning so drag-to-reorder works.
+          touchAction: wiggle ? "none" : "pan-x",
+          overscrollBehavior: "none",
         }}
       >
         <div
@@ -477,6 +514,10 @@ export function MobileHomeScreen() {
                       transformOrigin: "center",
                       position: "relative",
                       opacity: isHover ? 0.45 : 1,
+                      // Block native scroll when long-press / drag is engaged
+                      // on this cell. CSS handles the case where React's
+                      // synthetic touch listeners are passive.
+                      touchAction: wiggle ? "none" : "manipulation",
                     }}
                   >
                     <span
