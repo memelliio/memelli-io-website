@@ -12,7 +12,7 @@ export type Partner = {
 
 const PartnerContext = createContext<Partner | null>(null);
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://api.memelli.io';
+// Same-origin fetch — partner endpoint lives on memelli.io itself
 
 function readCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -23,7 +23,7 @@ function readCookie(name: string): string | null {
 
 async function fetchPartner(slug: string): Promise<Partner | null> {
   try {
-    const r = await fetch(API + '/api/partner/' + encodeURIComponent(slug), { cache: 'no-store' });
+    const r = await fetch('/api/partner/' + encodeURIComponent(slug), { cache: 'no-store' });
     if (!r.ok) return null;
     const j = await r.json();
     return {
@@ -42,16 +42,6 @@ export function PartnerProvider({ initialSlug, children }: { initialSlug?: strin
   const auth = useAuth();
   const userPartnerSlug =
     (auth as any)?.user?.partnerSlug ?? (auth as any)?.user?.partner?.slug ?? null;
-
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      if (partner?.brandColor) {
-        document.documentElement.style.setProperty('--brand-color', partner.brandColor);
-      } else {
-        document.documentElement.style.removeProperty('--brand-color');
-      }
-    }
-  }, [partner?.brandColor]);
 
   useEffect(() => {
     const slug = userPartnerSlug || readCookie('partner_slug') || initialSlug || null;
