@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { headers } from 'next/headers';
 import { AuthShell } from './_components/AuthShell';
 import { OsBodyClass } from './_components/OsBodyClass';
 import './globals.css';
@@ -17,7 +18,9 @@ export const metadata: Metadata = {
   themeColor: '#C41E3A',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers();
+  const initialPartnerSlug = h.get('x-partner-slug');
   return (
     <html lang="en" className={inter.variable}>
       <body
@@ -31,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }}
       >
         <OsBodyClass />
-        <AuthShell>{children}</AuthShell>
+        <AuthShell initialPartnerSlug={initialPartnerSlug}>{children}</AuthShell>
       </body>
     </html>
   );

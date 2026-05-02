@@ -1,135 +1,64 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Memelli OS Middleware — Subdomain Routing
+ * Memelli OS — White-label partner detection middleware
  *
- * Product subdomains (phone, video, crm, etc.) → redirect to dashboard section
- * Affiliate/tenant subdomains → rewrite to internal _tenant route
+ * Three triggers (priority order):
+ *   1. Path slug   — memelli.io/key2debtfree   → cookie + redirect to /
+ *   2. Query ref   — memelli.io/?ref=key2debtfree → cookie + redirect to /
+ *   3. Cookie      — memelli.io/  with cookie partner_slug=key2debtfree
+ *   4. Login       — handled client-side by PartnerProvider via useAuth()
+ *
+ * The OS desktop is the same for everyone; only the Logo + brand color swap.
  */
 
-// Product subdomains → dashboard route mapping
-const PRODUCT_ROUTES: Record<string, string> = {
-  phone: "/dashboard/communications/phone-system",
-  calls: "/dashboard/communications/calls",
-  video: "/dashboard/communications/meeting",
-  sms: "/dashboard/communications/messaging-center",
-  email: "/dashboard/communications/email",
-  voicemail: "/dashboard/communications/voicemail",
-  crm: "/dashboard/crm",
-  leads: "/dashboard/leads",
-  commerce: "/dashboard/commerce",
-  coaching: "/dashboard/coaching",
-  seo: "/dashboard/seo",
-  credit: "/dashboard/credit",
-  funding: "/dashboard/credit/funding-pipeline",
-  analytics: "/dashboard/analytics",
-  revenue: "/dashboard/analytics/revenue-engines",
-  agents: "/dashboard/ai-company",
-  workflows: "/dashboard/workflows",
-  tasks: "/dashboard/tasks",
-  contacts: "/dashboard/contacts",
-  portal: "/dashboard/portal",
-};
-
-// Subdomains that rewrite to a specific internal page (URL stays unchanged)
-const SUBDOMAIN_REWRITES: Record<string, string> = {};
-
-// Subdomains that pass through untouched (not product routes, not tenant routes)
-const RESERVED = new Set([
-  "www",
-  "api",
-  "app",
-  "admin",
-  "deploy",
-  "docs",
-  "universe",
-  "staging",
-  "preview",
-  "dev",
+const RESERVED_PATHS = new Set([
+  '_next', 'api', 'favicon.ico', 'os', 'admin', 'auth', 'login', 'signup',
+  'static', 'public', 'health', 'robots.txt', 'sitemap.xml',
 ]);
 
-function deriveRootDomain(host: string): string {
-  const hostname = host.split(':')[0].toLowerCase();
-  if (!hostname || hostname === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
-    return '';
-  }
-
-  const parts = hostname.split('.').filter(Boolean);
-  if (parts.length < 2) {
-    return hostname;
-  }
-
-  return parts.slice(-2).join('.');
+function looksLikePartnerSlug(seg: string): boolean {
+  if (!seg) return false;
+  if (seg.length < 2 || seg.length > 40) return false;
+  if (RESERVED_PATHS.has(seg)) return false;
+  return /^[a-z0-9][a-z0-9_-]*$/.test(seg);
 }
 
+const PARTNER_COOKIE = 'partner_slug';
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+
 export function middleware(req: NextRequest) {
-  const host = req.headers.get("host") || "";
-  const rootDomain = deriveRootDomain(host);
+  const url = req.nextUrl;
+  const pathSeg = (url.pathname.split('/').filter(Boolean)[0] ?? '').toLowerCase();
+  const refParam = (url.searchParams.get('ref') ?? '').toLowerCase();
+  const existingCookie = req.cookies.get(PARTNER_COOKIE)?.value ?? '';
 
-  // ── Subdomain detection ─────────────────────────────────────────────
-  if (rootDomain && host.endsWith(`.${rootDomain}`)) {
-    const subdomain = host.replace(`.${rootDomain}`, "").toLowerCase();
-
-    if (subdomain && !RESERVED.has(subdomain)) {
-      // Subdomain rewrite → serve internal page without changing URL
-      const rewriteBase = SUBDOMAIN_REWRITES[subdomain];
-      if (rewriteBase) {
-        const url = req.nextUrl.clone();
-        const suffix = url.pathname === "/" ? "" : url.pathname;
-        url.pathname = `${rewriteBase}${suffix}`;
-        return NextResponse.rewrite(url);
-      }
-
-      // Product subdomain → redirect to dashboard section
-      const productPath = PRODUCT_ROUTES[subdomain];
-      if (productPath) {
-        const url = req.nextUrl.clone();
-        if (!url.pathname.startsWith(productPath)) {
-          url.pathname = productPath;
-          return NextResponse.redirect(url, { status: 302 });
-        }
-        return NextResponse.next();
-      }
-
-      // Affiliate/tenant subdomain → rewrite to internal _tenant route
-      const url = req.nextUrl.clone();
-      url.pathname = `/_tenant/${subdomain}${url.pathname}`;
-      return NextResponse.rewrite(url);
-    }
+  if (looksLikePartnerSlug(refParam)) {
+    const cleanUrl = url.clone();
+    cleanUrl.searchParams.delete('ref');
+    cleanUrl.pathname = '/';
+    const res = NextResponse.redirect(cleanUrl, 302);
+    res.cookies.set(PARTNER_COOKIE, refParam, { path: '/', maxAge: COOKIE_MAX_AGE, sameSite: 'lax' });
+    return res;
   }
 
-  // ── Localhost subdomain detection (dev mode) ────────────────────────
-  const localhostMatch = host.match(/^([a-z0-9-]+)\.localhost/);
-  if (localhostMatch) {
-    const subdomain = localhostMatch[1];
-    if (subdomain && !RESERVED.has(subdomain)) {
-      const rewriteBase = SUBDOMAIN_REWRITES[subdomain];
-      if (rewriteBase) {
-        const url = req.nextUrl.clone();
-        const suffix = url.pathname === "/" ? "" : url.pathname;
-        url.pathname = `${rewriteBase}${suffix}`;
-        return NextResponse.rewrite(url);
-      }
-      const productPath = PRODUCT_ROUTES[subdomain];
-      if (productPath) {
-        const url = req.nextUrl.clone();
-        if (!url.pathname.startsWith(productPath)) {
-          url.pathname = productPath;
-          return NextResponse.redirect(url, { status: 302 });
-        }
-        return NextResponse.next();
-      }
-      const url = req.nextUrl.clone();
-      url.pathname = `/_tenant/${subdomain}${url.pathname}`;
-      return NextResponse.rewrite(url);
-    }
+  if (looksLikePartnerSlug(pathSeg)) {
+    const rewritten = url.clone();
+    rewritten.pathname = '/';
+    const res = NextResponse.redirect(rewritten, 302);
+    res.cookies.set(PARTNER_COOKIE, pathSeg, { path: '/', maxAge: COOKIE_MAX_AGE, sameSite: 'lax' });
+    return res;
+  }
+
+  if (existingCookie && looksLikePartnerSlug(existingCookie)) {
+    const res = NextResponse.next();
+    res.headers.set('x-partner-slug', existingCookie);
+    return res;
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/).*)",
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],
 };
