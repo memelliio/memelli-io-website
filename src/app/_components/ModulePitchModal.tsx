@@ -126,10 +126,12 @@ export function ModulePitchModal({
         variant={LAYOUT_REVEAL[pitch.layout]}
         duration={620}
         style={{
-          width: narrow ? "calc(100vw - 16px)" : "min(95vw, 1180px)",
+          // Mobile overlay law: 75vw, max 360px, never edge-to-edge.
+          width: narrow ? "min(75vw, 360px)" : "min(95vw, 1180px)",
           minWidth: narrow ? undefined : "60vw",
           minHeight: narrow ? undefined : "60vh",
-          maxHeight: narrow ? "calc(100vh - 16px)" : "90vh",
+          // dvh respects iOS Safari URL bar so the modal isn't clipped.
+          maxHeight: narrow ? "min(80dvh, 640px)" : "90vh",
           overflow: narrow ? "auto" : undefined,
           WebkitOverflowScrolling: "touch",
           position: "relative",

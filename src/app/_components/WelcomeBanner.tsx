@@ -98,11 +98,12 @@ export function WelcomeBanner() {
         position: "absolute",
         left: "50%",
         top: "50%",
-        // Width: clamp to parent. When parent is small (phone preview /
-        // mobile), this naturally shrinks. When wide, caps at 980.
-        width: "min(calc(100% - 24px), 980px)",
+        // Width law: on narrow, never edge-to-edge — 75% viewport, max 360px
+        // (per operator overlay rule). On desktop, clamp to parent.
+        width: narrow ? "min(75vw, 360px)" : "min(calc(100% - 24px), 980px)",
         height: narrow ? "auto" : "min(calc(100% - 140px), 600px)",
-        maxHeight: narrow ? "calc(100% - 140px)" : "calc(100% - 80px)",
+        // Use dvh on narrow so iOS Safari's URL bar doesn't clip the box.
+        maxHeight: narrow ? "min(80dvh, 640px)" : "calc(100% - 80px)",
         transform: `translate(-50%, -50%) ${leaving ? "scale(0.96)" : "scale(1)"}`,
         opacity: leaving ? 0 : 1,
         zIndex: 9000,
