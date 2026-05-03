@@ -1,0 +1,317 @@
+   ▲ Next.js 15.5.12 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.2:3000
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · cpus: 4
+
+ ✓ Starting...
+ ✓ Compiled instrumentation Node.js in 241ms
+ ✓ Compiled instrumentation Edge in 361ms
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 1432ms
+ ✓ Ready in 25.8s
+ ○ Compiling /app/crm/[contactId] ...
+ ✓ Compiled /app/crm/[contactId] in 75.7s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 93013ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 33471ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4 200 in 49107ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=funding 200 in 7542ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 6381ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=funding 200 in 5446ms
+ ✓ Compiled in 2s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 6297ms
+ ✓ Compiled in 64ms
+ ✓ Compiled in 909ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 2161ms
+ ✓ Compiled in 2.1s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 7704ms
+ ✓ Compiled in 2.7s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 5033ms
+ ✓ Compiled in 1374ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 5113ms
+ ✓ Compiled in 2.6s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3585ms
+ ✓ Compiled in 976ms
+ ✓ Compiled in 735ms
+ ✓ Compiled in 769ms
+ ✓ Compiled in 4.1s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3722ms
+ ✓ Compiled in 1172ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1731ms
+ ✓ Compiled in 1932ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3145ms
+ ✓ Compiled in 1644ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3436ms
+ ✓ Compiled in 703ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1922ms
+ ✓ Compiled in 670ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1943ms
+ ○ Compiling / ...
+ ✓ Compiled / in 44.5s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1542ms
+ ✓ Compiled in 1236ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3321ms
+ ✓ Compiled in 1503ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3031ms
+ ✓ Compiled in 1307ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 4312ms
+ ✓ Compiled in 3s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 8650ms
+ ✓ Compiled instrumentation Node.js in 1ms
+ ✓ Compiled instrumentation Edge in 0ms
+ ✓ Compiled middleware in 3ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1985ms
+ GET /health 404 in 3996ms
+ ○ Compiling /app/repair/agreement ...
+ ✓ Compiled /app/repair/agreement in 2.3s
+ GET /app/repair/agreement 200 in 3423ms
+ GET /app/repair/agreement 200 in 972ms
+ GET /app/repair/agreement 200 in 844ms
+ GET / 200 in 5448ms
+ ○ Compiling /app/crm ...
+ ✓ Compiled /app/crm in 5.7s
+ GET /app/crm 200 in 9198ms
+ GET /app/crm 200 in 3020ms
+ GET /app/crm 200 in 1804ms
+ GET /app/crm 200 in 5676ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4 200 in 3185ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1219ms
+ ✓ Compiled in 4.7s
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 13.5s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 500 in 21918ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 500 in 9324ms
+ ✓ Compiled in 2.9s
+ ✓ Compiled /app/crm/[contactId] in 336ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 4320ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 5669ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 6224ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 4654ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3157ms
+   ▲ Next.js 15.5.12 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.2:3000
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · cpus: 4
+
+ ✓ Starting...
+ ✓ Compiled instrumentation Node.js in 50ms
+ ✓ Compiled instrumentation Edge in 67ms
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 544ms
+ ✓ Ready in 13.3s
+ ✓ Compiled instrumentation Node.js in 33ms
+ ✓ Compiled instrumentation Edge in 1ms
+ ✓ Compiled middleware in 2ms
+ ○ Compiling /app/crm/[contactId] ...
+ ✓ Compiled /app/crm/[contactId] in 40.4s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 46565ms
+ ○ Compiling /app/crm ...
+ ✓ Compiled /app/crm in 3.2s
+ GET /app/crm 200 in 4892ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 3.8s
+ GET /app/admin 404 in 4848ms
+ GET /app/agent 404 in 1075ms
+ GET /app/ai 404 in 884ms
+ GET /app/analytics 404 in 1151ms
+ ○ Compiling /app/business-crm ...
+ ✓ Compiled /app/business-crm in 3.3s
+ GET /app/business-crm 200 in 4679ms
+ GET /app/credit 404 in 1311ms
+ ○ Compiling /app/funding ...
+ ✓ Compiled /app/funding in 4.6s
+ GET /app/funding 200 in 5053ms
+ ✓ Compiled instrumentation Node.js in 435ms
+ ✓ Compiled instrumentation Edge in 7ms
+ ✓ Compiled middleware in 5ms
+ ✓ Compiled in 456ms
+ ✓ Compiled instrumentation Node.js in 61ms
+ ✓ Compiled instrumentation Edge in 6ms
+ ✓ Compiled middleware in 8ms
+ ✓ Compiled instrumentation Node.js in 1ms
+ ✓ Compiled instrumentation Edge in 0ms
+ ✓ Compiled middleware in 7ms
+   ▲ Next.js 15.5.12 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.2:3000
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · cpus: 4
+
+ ✓ Starting...
+ ✓ Compiled instrumentation Node.js in 22ms
+ ✓ Compiled instrumentation Edge in 42ms
+ ✓ Compiled middleware in 327ms
+ ✓ Ready in 4.4s
+ ○ Compiling /app/crm/[contactId] ...
+ ✓ Compiled /app/crm/[contactId] in 18.9s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 21318ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1245ms
+ ○ Compiling /app/crm ...
+ ✓ Compiled /app/crm in 4.5s
+ GET /app/crm 200 in 5448ms
+ GET /app/crm 200 in 910ms
+ ○ Compiling /app/business-crm ...
+ ✓ Compiled /app/business-crm in 959ms
+ GET /app/business-crm 200 in 1633ms
+ GET /app/business-crm 200 in 979ms
+ ○ Compiling /app/repair/agreement ...
+ ✓ Compiled /app/repair/agreement in 2.1s
+ GET /app/repair/agreement 200 in 3138ms
+ GET /app/repair/agreement 200 in 905ms
+   ▲ Next.js 15.5.12 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.2:3000
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · cpus: 4
+
+ ✓ Starting...
+ ✓ Compiled instrumentation Node.js in 29ms
+ ✓ Compiled instrumentation Edge in 41ms
+ ✓ Compiled middleware in 415ms
+ ✓ Ready in 5.8s
+ ✓ Compiled instrumentation Node.js in 0ms
+ ✓ Compiled instrumentation Edge in 0ms
+ ✓ Compiled middleware in 1ms
+ ○ Compiling /app/crm/[contactId] ...
+ ✓ Compiled /app/crm/[contactId] in 16.2s
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 18568ms
+ ○ Compiling /app/business-crm ...
+ ✓ Compiled /app/business-crm in 1456ms
+ GET /app/business-crm 200 in 2233ms
+ ○ Compiling /app/calendar ...
+ ✓ Compiled /app/calendar in 1351ms
+ GET /app/calendar 200 in 2182ms
+ ○ Compiling /app/funding ...
+ ✓ Compiled /app/funding in 1680ms
+ GET /app/funding 200 in 2613ms
+ ○ Compiling /app/repair/agreement ...
+ ✓ Compiled /app/repair/agreement in 871ms
+ GET /app/repair/agreement 200 in 1601ms
+ ○ Compiling /app/crm ...
+ ✓ Compiled /app/crm in 937ms
+ GET /app/crm 200 in 1914ms
+ GET /app/business-crm 200 in 895ms
+ GET /app/calendar 200 in 878ms
+ ○ Compiling /app/client/dashboard ...
+ ✓ Compiled /app/client/dashboard in 2s
+ GET /app/client/dashboard 200 in 2745ms
+ ○ Compiling /app/coaching ...
+ ✓ Compiled /app/coaching in 1316ms
+ GET /app/coaching 200 in 2055ms
+ GET /app/funding 200 in 749ms
+ ○ Compiling /app/iptv ...
+ ✓ Compiled /app/iptv in 1442ms
+ GET /app/iptv 200 in 2295ms
+ ○ Compiling /app/lockmail ...
+ ✓ Compiled /app/lockmail in 1533ms
+ GET /app/lockmail 200 in 2340ms
+ ○ Compiling /app/my-credit ...
+ ✓ Compiled /app/my-credit in 1249ms
+ GET /app/my-credit 200 in 2504ms
+ ○ Compiling /app/notes ...
+ ✓ Compiled /app/notes in 1001ms
+ GET /app/notes 200 in 1765ms
+ ○ Compiling /app/phone ...
+ ✓ Compiled /app/phone in 3.5s
+ GET /app/phone 200 in 4812ms
+ ○ Compiling /app/seo ...
+ ✓ Compiled /app/seo in 1098ms
+ GET /app/seo 200 in 1922ms
+ ○ Compiling /app/social ...
+ ✓ Compiled /app/social in 1221ms
+ GET /app/social 200 in 1964ms
+ ○ Compiling /app/trading ...
+ ✓ Compiled /app/trading in 1319ms
+ GET /app/trading 200 in 1892ms
+ ○ Compiling /app/ugc ...
+ ✓ Compiled /app/ugc in 1178ms
+ GET /app/ugc 200 in 2078ms
+ ○ Compiling /app/video ...
+ ✓ Compiled /app/video in 1666ms
+ GET /app/video 200 in 2604ms
+ ○ Compiling /app/vpn ...
+ ✓ Compiled /app/vpn in 1216ms
+ GET /app/vpn 200 in 1982ms
+ ○ Compiling /app/website-builder ...
+ ✓ Compiled /app/website-builder in 1150ms
+ GET /app/website-builder 200 in 2074ms
+ GET /app/repair/agreement 200 in 805ms
+ ○ Compiling /app/repair ...
+ ✓ Compiled /app/repair in 1054ms
+ GET /app/repair 200 in 1817ms
+ ○ Compiling /app/repair/documents ...
+ ✓ Compiled /app/repair/documents in 969ms
+ GET /app/repair/documents 200 in 1850ms
+ ○ Compiling /app/repair/status ...
+ ✓ Compiled /app/repair/status in 1007ms
+ GET /app/repair/status 200 in 1836ms
+ GET /app/crm 200 in 1752ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 4265ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 2934ms
+ GET /app/business-crm 200 in 3190ms
+ GET /app/funding 200 in 2803ms
+ GET /app/calendar 200 in 3020ms
+ GET /app/trading 200 in 3043ms
+ GET /app/seo 200 in 2935ms
+ GET /app/coaching 200 in 7036ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 749ms
+ GET /login 200 in 1712ms
+ GET /login 200 in 896ms
+ ○ Compiling / ...
+ ✓ Compiled / in 14.1s
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 5s
+ GET /?heroMode=adminHome 500 in 20208ms
+ GET /?heroMode=adminHome 500 in 19864ms
+ GET /app/crm 200 in 2240ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3444ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 6221ms
+ GET /app/business-crm 200 in 2509ms
+ GET /app/funding 200 in 2628ms
+ GET /app/calendar 200 in 1555ms
+ GET /app/trading 200 in 1617ms
+ GET /app/seo 200 in 1796ms
+ GET /app/coaching 200 in 1615ms
+ GET / 500 in 548ms
+ GET /?heroMode=adminHome 500 in 396ms
+ GET /app/crm 200 in 1807ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 3634ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 5599ms
+ GET /app/business-crm 200 in 3254ms
+ GET /app/funding 200 in 3190ms
+ GET /app/calendar 200 in 2244ms
+ GET /app/trading 200 in 2989ms
+ GET /app/seo 200 in 2097ms
+ GET /app/coaching 200 in 4937ms
+ ✓ Compiled in 3.9s
+ ✓ Compiled / in 76ms
+ GET /?heroMode=adminHome 200 in 1487ms
+ GET / 200 in 871ms
+ GET /app/crm 200 in 578ms
+ GET /app/crm 200 in 1902ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1884ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1538ms
+ GET /app/business-crm 200 in 1350ms
+ GET /app/funding 200 in 1244ms
+ GET /app/calendar 200 in 1303ms
+ GET /app/trading 200 in 1248ms
+ GET /app/seo 200 in 884ms
+ GET /app/coaching 200 in 1088ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 2071ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=documents 200 in 1110ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=letters 200 in 2100ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 2285ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1705ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1785ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1926ms
+ GET /app/crm/cc9810c3-744d-4669-ad36-f545379313b4?tab=repair 200 in 1294ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 832ms
+ GET /api/dispute-rounds/cc9810c3-744d-4669-ad36-f545379313b4?perPage=50 404 in 1532ms
