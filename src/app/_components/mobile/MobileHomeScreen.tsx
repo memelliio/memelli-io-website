@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
-import { APPS } from "../../_apps/registry";
+import { useRegistryStore } from "../../_lib/registry-store";
 import { useWindowStore } from "../../_lib/window-store";
 import { useOsMode } from "../../_lib/os-mode-store";
 import { useAuth } from "@/contexts/auth";
@@ -21,6 +21,7 @@ const MUTED = "#6B7280";
 const LINE = "#E5E7EB";
 
 export function MobileHomeScreen() {
+  const APPS = useRegistryStore((s) => s.apps);
   const open = useWindowStore((s) => s.open);
   const pins = useWindowStore((s) => s.pins);
   const mode = useOsMode((s) => s.mode);

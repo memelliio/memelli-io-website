@@ -11,13 +11,14 @@ import {
   Radio,
 } from "lucide-react";
 import { useEffect, useState, type DragEvent } from "react";
-import { APPS } from "../_apps/registry";
+import { useRegistryStore } from "../_lib/registry-store";
 import { useWindowStore } from "../_lib/window-store";
 
 const PIN_MIME = "application/memelli-taskbar-pin";
 const APP_MIME = "application/memelli-app-id";
 
 export function Taskbar() {
+  const APPS = useRegistryStore((s) => s.apps);
   const windows = useWindowStore((s) => s.windows);
   const open = useWindowStore((s) => s.open);
   const focus = useWindowStore((s) => s.focus);
@@ -164,7 +165,7 @@ export function Taskbar() {
           type="button"
           aria-label="Search"
           onClick={() => open("browser")}
-          className="grid place-items-center text-ink transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--primary))]"
+          className="grid place-items-center text-white transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--primary))]"
           style={{ width: 38, height: 38, borderRadius: 8 }}
         >
           <Search size={16} strokeWidth={1.8} />
@@ -271,12 +272,12 @@ export function Taskbar() {
 
       <div
         className="flex items-center gap-0.5 pl-2"
-        style={{ borderLeft: "1px solid hsl(var(--line))" }}
+        style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}
       >
         <button
           type="button"
           aria-label="Auth"
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <User size={14} strokeWidth={1.8} />
@@ -284,7 +285,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Battery"
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <BatteryMedium size={14} strokeWidth={1.8} />
@@ -292,7 +293,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Network"
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Wifi size={14} strokeWidth={1.8} />
@@ -300,7 +301,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Volume"
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Volume2 size={14} strokeWidth={1.8} />
@@ -309,7 +310,7 @@ export function Taskbar() {
           type="button"
           aria-label="TV"
           onClick={() => open("tv")}
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Tv size={14} strokeWidth={1.8} />
@@ -318,7 +319,7 @@ export function Taskbar() {
           type="button"
           aria-label="Radio"
           onClick={() => open("radio")}
-          className="grid place-items-center text-ink hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Radio size={14} strokeWidth={1.8} />
@@ -327,7 +328,7 @@ export function Taskbar() {
           type="button"
           aria-label="Calendar"
           onClick={() => open("calendar")}
-          className="grid items-center text-ink hover:bg-[hsl(var(--background))] tabular-nums text-right"
+          className="grid items-center text-white hover:bg-[hsl(var(--background))] tabular-nums text-right"
           style={{
             height: 38,
             padding: "0 10px",

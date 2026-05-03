@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { APPS } from "../../_apps/registry";
+import { useRegistryStore } from "../../_lib/registry-store";
 import { useWindowStore } from "../../_lib/window-store";
 import { useAuth } from "@/contexts/auth";
 import { getPitch, type ModulePitch } from "../../_lib/module-pitches";
@@ -11,6 +11,7 @@ const PAPER = "#FFFFFF";
 const INK = "#0B0B0F";
 
 export function MobileDock() {
+  const APPS = useRegistryStore((s) => s.apps);
   const open = useWindowStore((s) => s.open);
   const pins = useWindowStore((s) => s.pins);
   const { user } = useAuth();

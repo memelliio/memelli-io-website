@@ -3,7 +3,11 @@ import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { AuthShell } from './_components/AuthShell';
 import { OsBodyClass } from './_components/OsBodyClass';
+import { loadOsTheme, themeToCss } from '@/lib/os-theme';
+import { RegistryBoot } from './_components/RegistryBoot';
 import './globals.css';
+
+export const dynamic = 'force-dynamic';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,8 +25,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
   const initialPartnerSlug = h.get('x-partner-slug');
+  const theme = await loadOsTheme();
+  const themeCss = themeToCss(theme);
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: themeCss }} />
+      </head>
       <body
         className={inter.className}
         style={{
@@ -34,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         }}
       >
         <OsBodyClass />
+        <RegistryBoot />
         <AuthShell initialPartnerSlug={initialPartnerSlug}>{children}</AuthShell>
       </body>
     </html>

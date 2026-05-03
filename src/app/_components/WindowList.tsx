@@ -2,13 +2,14 @@
 
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { APPS } from "../_apps/registry";
+import { useRegistryStore } from "../_lib/registry-store";
 import { useWindowStore } from "../_lib/window-store";
 
 const TASKBAR_H = 52;
 const STRIP_H = 32;
 
 export function WindowList() {
+  const APPS = useRegistryStore((s) => s.apps);
   const windows = useWindowStore((s) => s.windows);
   const pins = useWindowStore((s) => s.pins);
   const open = useWindowStore((s) => s.open);
@@ -57,11 +58,11 @@ export function WindowList() {
           alignItems: "center",
           gap: 4,
           padding: "0 8px",
-          background: "rgba(255,255,255,0.92)",
+          background: "linear-gradient(180deg, #0F1115 0%, #18181C 100%)",
           backdropFilter: "blur(20px) saturate(180%)",
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          borderTop: "1px solid hsl(var(--line))",
-          borderBottom: "1px solid hsl(var(--line))",
+          borderTop: "1px solid rgba(196,30,58,0.18)",
+          borderBottom: "1px solid rgba(196,30,58,0.18)",
           zIndex: 99995,
           overflowX: "auto",
           overflowY: "hidden",
@@ -119,7 +120,7 @@ export function WindowList() {
                 background: isFocused
                   ? "hsl(var(--background))"
                   : "transparent",
-                color: "hsl(var(--ink))",
+                color: "white",
                 fontSize: 12,
                 cursor: "pointer",
                 opacity: w.minimized ? 0.55 : 1,
@@ -239,7 +240,7 @@ export function WindowList() {
                 height: 24,
                 borderRadius: 4,
                 background: "transparent",
-                color: "hsl(var(--ink))",
+                color: "white",
                 fontSize: 12,
                 cursor: "pointer",
                 opacity: 0.78,
@@ -303,7 +304,7 @@ export function WindowList() {
               padding: "8px 12px",
               background: "transparent",
               border: "none",
-              color: "hsl(var(--ink))",
+              color: "white",
               fontSize: 12,
               textAlign: "left",
               cursor: "pointer",

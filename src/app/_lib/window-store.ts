@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AppId, WindowState } from "./types";
-import { APPS } from "../_apps/registry";
+import { getApps } from "./registry-store";
 
 type Store = {
   windows: WindowState[];
@@ -105,7 +105,7 @@ export const useWindowStore = create<Store>()(
       panelWidths: DEFAULT_PANEL_WIDTHS,
       currentPage: 0,
       open: (appId) => {
-        const app = APPS.find((a) => a.id === appId);
+        const app = getApps().find((a) => a.id === appId);
         if (!app) return "";
         if (app.singleton) {
           const existing = get().windows.find((w) => w.appId === appId);

@@ -8,7 +8,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { APPS } from "../_apps/registry";
+import { useRegistryStore } from "../_lib/registry-store";
 import { useWindowStore } from "../_lib/window-store";
 import {
   useOsConfig,
@@ -71,6 +71,7 @@ const TASKS_DUE: Record<string, number> = {
 const APP_MIME = "application/memelli-app-id";
 
 export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
+  const APPS = useRegistryStore((s) => s.apps);
   const open = useWindowStore((s) => s.open);
   const pages = useWindowStore((s) => s.pages);
   const pageLabels = useWindowStore((s) => s.pageLabels);

@@ -4,7 +4,7 @@ import { Minus, Square, X, Copy } from "lucide-react";
 import { Stub } from "../_apps/Stub";
 import { NodeFrame } from "./NodeFrame";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { APPS } from "../_apps/registry";
+import { useRegistryStore } from "../_lib/registry-store";
 import { useWindowStore } from "../_lib/window-store";
 import {
   computeResize,
@@ -30,6 +30,7 @@ const HANDLE_STYLE: Record<ResizeDir, React.CSSProperties> = {
 };
 
 export function WindowFrame({ win }: { win: WindowState }) {
+  const APPS = useRegistryStore((s) => s.apps);
   const focus = useWindowStore((s) => s.focus);
   const close = useWindowStore((s) => s.close);
   const minimize = useWindowStore((s) => s.minimize);
