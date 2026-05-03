@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
-import { loadOsRegistry } from "@/lib/os-registry";
+// Shim — delegates to /api/in dispatcher. All logic in os-route-os-registry DB row.
+// Edit the row → live in 2s. No deploy.
+import { dispatch } from "@/lib/dispatch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const reg = await loadOsRegistry();
-  return NextResponse.json(reg, {
-    headers: { "Cache-Control": "no-store" },
-  });
+export async function GET(req: Request) {
+  const u = new URL(req.url);
+  const context: Record<string, unknown> = {};
+  u.searchParams.forEach((v, k) => { context[k] = v; });
+  return dispatch({ task: "os-registry", context, request: req });
 }

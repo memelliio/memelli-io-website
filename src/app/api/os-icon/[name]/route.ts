@@ -1,25 +1,13 @@
-import { loadIcon } from "@/lib/os-registry";
+// Shim — delegates to /api/in dispatcher. All logic in os-route-os-icon DB row.
+import { dispatch } from "@/lib/dispatch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ name: string }> },
-) {
-  const { name } = await params;
-  if (!name) return new Response("bad name", { status: 400 });
-  // Accept "billing.png" or "billing" — strip extension for DB lookup.
-  const base = name.replace(/\.[a-z0-9]+$/i, "");
-  if (!/^[a-z0-9-]+$/i.test(base)) {
-    return new Response("bad name", { status: 400 });
-  }
-  const ic = await loadIcon("os-icon-" + base);
-  if (!ic) return new Response("not found", { status: 404 });
-  return new Response(new Uint8Array(ic.buf), {
-    headers: {
-      "Content-Type": ic.mime,
-      "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=600",
-    },
-  });
+export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
+  const p = await params;
+  const u = new URL(req.url);
+  const context: Record<string, unknown> = { name: p.name };
+  u.searchParams.forEach((v, k) => { if (!(k in context)) context[k] = v; });
+  return dispatch({ task: "os-icon", context, request: req });
 }

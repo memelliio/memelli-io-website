@@ -1,23 +1,13 @@
-import { NextResponse } from "next/server";
-import { loadAppNodeCode } from "@/lib/os-registry";
+// Shim — delegates to /api/in dispatcher. All logic in os-route-os-node DB row.
+import { dispatch } from "@/lib/dispatch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ name: string }> },
-) {
-  const { name } = await params;
-  if (!name || !/^[a-z0-9-]+$/i.test(name)) {
-    return NextResponse.json({ ok: false, error: "bad_name" }, { status: 400 });
-  }
-  const code = await loadAppNodeCode(name);
-  if (!code) {
-    return NextResponse.json({ ok: false, error: "not_found", name }, { status: 404 });
-  }
-  return NextResponse.json(
-    { ok: true, name, code },
-    { headers: { "Cache-Control": "no-store" } },
-  );
+export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
+  const p = await params;
+  const u = new URL(req.url);
+  const context: Record<string, unknown> = { name: p.name };
+  u.searchParams.forEach((v, k) => { if (!(k in context)) context[k] = v; });
+  return dispatch({ task: "os-node", context, request: req });
 }
