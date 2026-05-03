@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     try {
       // Lookup user by session token
       const sessionRes = await client.query(
-        `SELECT user_id FROM access.sessions WHERE token = $1 AND expires_at > now()`,
+        `SELECT user_id FROM auth.sessions WHERE token = $1 AND revoked_at IS NULL AND expires_at > now()`,
         [token]
       );
 
