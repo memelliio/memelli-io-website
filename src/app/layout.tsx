@@ -26,12 +26,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const h = await headers();
   const initialPartnerSlug = h.get('x-partner-slug');
   const [theme, extraCss] = await Promise.all([loadOsTheme(), loadOsExtraCss()]);
-  const themeCss = themeToCss(theme);
+  const combinedCss = themeToCss(theme) + '\n' + (extraCss || '');
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        <style dangerouslySetInnerHTML={{ __html: themeCss }} />
-        {extraCss && <style dangerouslySetInnerHTML={{ __html: extraCss }} />}
+        <style id="os-runtime-css" dangerouslySetInnerHTML={{ __html: combinedCss }} />
       </head>
       <body
         className={inter.className}
