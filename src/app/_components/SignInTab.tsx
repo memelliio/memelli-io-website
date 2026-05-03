@@ -99,6 +99,9 @@ export function SignInTab() {
       setEmail("");
       setPw("");
       setOpen(false);
+      // Take the signed-in user somewhere — pre-qualification is the funnel start.
+      // If they've already completed it, the app shows their existing application.
+      try { openWindow("pre-qualification"); } catch { /* registry miss is non-fatal */ }
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "Sign in failed");
     } finally {
