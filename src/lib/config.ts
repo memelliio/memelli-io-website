@@ -30,27 +30,13 @@ function resolveApiUrl(): string {
 	}
 
 	if (typeof window === 'undefined') {
-		return FALLBACK_CORE_API_URL;
+		// Server-side render: same-origin (next/headers will resolve)
+		return '';
 	}
 
-	const { protocol, hostname } = window.location;
-	if (hostname === 'localhost' || hostname === '127.0.0.1') {
-		// Local OS (port 3000) and Terminal (port 3001) are the only canonical
-		// local services. The API is always api.memelli.io — dev shares the
-		// production universe DB per CLAUDE.md.
-		return 'https://api.memelli.io';
-	}
-
-	const rootDomain = deriveRootDomain(hostname);
-	if (!rootDomain) {
-		return FALLBACK_CORE_API_URL;
-	}
-
-	if (rootDomain === 'memelli.io') {
-		return 'https://api.memelli.io';
-	}
-
-	return `${protocol}//api.${rootDomain}`;
+	// Auth + access live INSIDE this Next.js app at /api/auth/*. Same-origin
+	// always — the legacy api.memelli.io gateway is no longer the auth source.
+	return '';
 }
 
 export const API_URL = resolveApiUrl();
