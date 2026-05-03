@@ -52,6 +52,15 @@ function looksLikePartnerSlug(s: string): boolean {
   return /^[a-z0-9][a-z0-9_-]*$/.test(s);
 }
 
+// Force every HTML response to bypass browser cache so clients always get the
+// latest JS chunk references after a deploy. /_next/static/* (hashed filenames)
+// and /api/* are excluded by the matcher below — they keep their own cache headers.
+function noStore(res: NextResponse) {
+  res.headers.set('Cache-Control', 'no-store, must-revalidate');
+  res.headers.set('Pragma', 'no-cache');
+  return res;
+}
+
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const host = req.headers.get('host') ?? '';
@@ -67,7 +76,7 @@ export function middleware(req: NextRequest) {
     if (existingCookie !== sub) {
       res.cookies.set(PARTNER_COOKIE, sub, { path: '/', maxAge: COOKIE_MAX_AGE, sameSite: 'lax', domain: '.memelli.io' });
     }
-    return res;
+    return noStore(res);
   }
 
   // Trigger 2 — ?ref=<slug> on apex
@@ -76,18 +85,18 @@ export function middleware(req: NextRequest) {
     cleanUrl.searchParams.delete('ref');
     const res = NextResponse.redirect(cleanUrl, 302);
     res.cookies.set(PARTNER_COOKIE, refParam, { path: '/', maxAge: COOKIE_MAX_AGE, sameSite: 'lax', domain: '.memelli.io' });
-    return res;
+    return noStore(res);
   }
 
   // Trigger 3 — cookie present (apex visit, returning visitor)
   if (existingCookie && looksLikePartnerSlug(existingCookie)) {
     const res = NextResponse.next();
     res.headers.set('x-partner-slug', existingCookie);
-    return res;
+    return noStore(res);
   }
 
   // No partner detected — generic Memelli
-  return NextResponse.next();
+  return noStore(NextResponse.next());
 }
 
 export const config = {
