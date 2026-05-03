@@ -2,6 +2,7 @@
 
 import { Minus, Square, X, Copy } from "lucide-react";
 import { Stub } from "../_apps/Stub";
+import { NodeFrame } from "./NodeFrame";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { APPS } from "../_apps/registry";
 import { useWindowStore } from "../_lib/window-store";
@@ -369,6 +370,8 @@ export function WindowFrame({ win }: { win: WindowState }) {
             ctaHref={app.body.ctaHref}
             ctaLabel={app.body.ctaLabel}
           />
+        ) : app.body.kind === "node" ? (
+          <NodeFrame nodeName={app.body.nodeName} windowId={win.id} />
         ) : (
           <app.body.Component windowId={win.id} />
         )}

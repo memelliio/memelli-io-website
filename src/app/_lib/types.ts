@@ -19,6 +19,7 @@ export type AppDef = {
   singleton?: boolean;
   body:
     | { kind: "component"; Component: ComponentType<{ windowId: string }> }
+    | { kind: "node"; nodeName: string }
     | { kind: "iframe"; src: string }
     | { kind: "stub"; title: string; blurb: string; ctaHref?: string; ctaLabel?: string };
 };
