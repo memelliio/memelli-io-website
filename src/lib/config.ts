@@ -1,8 +1,9 @@
+// API_URL resolution — same-origin (''). No fallback, no legacy gateway. Operator law: fail loud, no silent api.memelli.io fallback.
+// rev: 2026-05-04-no-fallback-bust-cache
+
 function trimTrailingSlash(value: string): string {
 	return value.replace(/\/+$/, '');
 }
-
-const FALLBACK_CORE_API_URL = 'https://api-production-057c.up.railway.app';
 
 function deriveRootDomain(hostname: string): string {
 	const normalized = hostname.toLowerCase().replace(/:\d+$/, '');
