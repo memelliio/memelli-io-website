@@ -9,55 +9,33 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const requiredFields = [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "bureaus",
-      "goals",
-    ];
-    const missing = requiredFields.filter((field) => !(field in body));
-
+    const required = ["firstName", "lastName", "email", "phone", "bureaus", "goals"];
+    const missing = required.filter((f) => !(f in body));
     if (missing.length) {
-      return NextResponse.json(
-        { ok: false, error: "missing_fields", missing },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "missing_fields", missing }, { status: 400 });
     }
 
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      bureaus,
-      goals,
-    } = body as {
+    const { firstName, lastName, email, phone, bureaus, goals } = body as {
       firstName: string;
       lastName: string;
       email: string;
       phone: string;
-      bureaus: unknown[];
-      goals: unknown[];
+      bureaus: string[];
+      goals: string[];
     };
 
-    // Retrieve user_id from session cookie if present
-    const cookieStore = cookies();
-    const sessionToken = cookieStore.get("memelli_session")?.value;
-    let userId: number | null = null;
-
+    const c = await cookies();
+    const sessionToken = c.get("memelli_session")?.value;
+    let userId: string | null = null;
     if (sessionToken) {
-      const sessionResult = await pool.query<{ user_id: number }>(
-        `SELECT user_id FROM sessions WHERE session_token = $1`,
-        [sessionToken]
+      const sr = await pool.query<{ user_id: string }>(
+        `SELECT user_id FROM auth.sessions WHERE token = $1 AND revoked_at IS NULL AND expires_at > now()`,
+        [sessionToken],
       );
-      if (sessionResult.rowCount) {
-        userId = sessionResult.rows[0].user_id;
-      }
+      if (sr.rowCount) userId = sr.rows[0].user_id;
     }
 
-    const insertResult = await pool.query<{ id: number }>(
+    const ins = await pool.query<{ id: string }>(
       `INSERT INTO customer.credit_repair_cases
         (user_id, first_name, last_name, email, phone, bureaus, goals, payload, stage)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -68,21 +46,16 @@ export async function POST(req: Request) {
         lastName,
         email,
         phone,
-        JSON.stringify(bureaus),
-        JSON.stringify(goals),
+        Array.isArray(bureaus) ? bureaus : [],
+        Array.isArray(goals) ? goals : [],
         JSON.stringify(body),
         "intake",
-      ]
+      ],
     );
 
-    const caseId = insertResult.rows[0].id;
-
-    return NextResponse.json({ ok: true, caseId });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { ok: false, error: "server_error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: true, caseId: ins.rows[0].id });
+  } catch (e) {
+    console.error("[credit-repair/submit]", e);
+    return NextResponse.json({ ok: false, error: "server_error", detail: (e as Error).message }, { status: 500 });
   }
 }
