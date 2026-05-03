@@ -165,7 +165,7 @@ export function Taskbar() {
           type="button"
           aria-label="Search"
           onClick={() => open("browser")}
-          className="grid place-items-center text-white transition hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--primary))]"
+          className="grid place-items-center text-white transition hover:bg-white/10"
           style={{ width: 38, height: 38, borderRadius: 8 }}
         >
           <Search size={16} strokeWidth={1.8} />
@@ -277,7 +277,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Auth"
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <User size={14} strokeWidth={1.8} />
@@ -285,7 +285,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Battery"
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <BatteryMedium size={14} strokeWidth={1.8} />
@@ -293,7 +293,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Network"
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Wifi size={14} strokeWidth={1.8} />
@@ -301,7 +301,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Volume"
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Volume2 size={14} strokeWidth={1.8} />
@@ -310,7 +310,7 @@ export function Taskbar() {
           type="button"
           aria-label="TV"
           onClick={() => open("tv")}
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Tv size={14} strokeWidth={1.8} />
@@ -319,7 +319,7 @@ export function Taskbar() {
           type="button"
           aria-label="Radio"
           onClick={() => open("radio")}
-          className="grid place-items-center text-white hover:bg-white/10"
+          className="grid place-items-center text-white bg-transparent border-0 hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Radio size={14} strokeWidth={1.8} />
@@ -328,7 +328,7 @@ export function Taskbar() {
           type="button"
           aria-label="Calendar"
           onClick={() => open("calendar")}
-          className="grid items-center text-white hover:bg-white/10 tabular-nums text-right"
+          className="grid items-center text-white bg-transparent border-0 hover:bg-white/10 tabular-nums text-right"
           style={{
             height: 38,
             padding: "0 10px",
