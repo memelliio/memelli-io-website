@@ -114,6 +114,43 @@ export async function dispatch({ task, context, request }: DispatchOpts): Promis
     compare: (plain: string, hash: string) => bcrypt.compare(plain, hash),
   };
 
+  // ─── Health envelope every response carries — no separate /health endpoint needed ───
+  function withHealth(body: Record<string, unknown> | unknown, status: number) {
+    const out = (body && typeof body === "object" ? { ...(body as Record<string, unknown>) } : { value: body });
+    out._health = {
+      service: "memelli-io-website",
+      side: "server",
+      ok: status >= 200 && status < 400,
+      status,
+      task,
+      ts: new Date().toISOString(),
+    };
+    return out;
+  }
+
+  // Async, swallow-on-fail. Operator law: trace every >=400 to kernel.api_traces.
+  function trace(status: number, error: string | null, response: unknown) {
+    if (status < 400) return;
+    pool.query(
+      `INSERT INTO kernel.api_traces (service, side, task, route, method, url, status, user_id, ip, headers, request, response, error)
+       VALUES ($1,'server',$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12)`,
+      [
+        "memelli-io-website",
+        task,
+        new URL(request.url).pathname,
+        request.method,
+        request.url,
+        status,
+        user?.id ?? null,
+        headersObj["x-forwarded-for"] || headersObj["x-real-ip"] || null,
+        JSON.stringify(headersObj),
+        JSON.stringify(context ?? {}),
+        JSON.stringify(response ?? null),
+        error,
+      ],
+    ).catch(() => { /* swallow — never break a request to log */ });
+  }
+
   let handler: (ctx: typeof ctx, h: typeof helpers) => Promise<unknown>;
   try {
     const m: { exports: unknown } = { exports: {} };
@@ -121,28 +158,32 @@ export async function dispatch({ task, context, request }: DispatchOpts): Promis
     handler = m.exports as typeof handler;
     if (typeof handler !== "function") throw new Error("handler_not_function");
   } catch (e) {
-    return NextResponse.json(
-      { ok: false, error: "route_compile_error", task, detail: (e as Error).message },
-      { status: 500 },
-    );
+    const body = { ok: false, error: "route_compile_error", task, detail: (e as Error).message };
+    trace(500, "route_compile_error", body);
+    return NextResponse.json(withHealth(body, 500), { status: 500 });
   }
 
   try {
     const result = await handler(ctx, helpers);
     if (result && typeof result === "object" && "__rawResponse" in (result as Record<string, unknown>)) {
       const raw = (result as { __rawResponse?: Response }).__rawResponse;
-      if (raw instanceof Response) return raw;
+      if (raw instanceof Response) {
+        if (raw.status >= 400) trace(raw.status, "raw_response", null);
+        return raw;
+      }
     }
     if (result && typeof result === "object" && "__status" in (result as Record<string, unknown>)) {
       const r = result as { __status?: number; [k: string]: unknown };
       const { __status, ...rest } = r;
-      return NextResponse.json(rest, { status: typeof __status === "number" ? __status : 200 });
+      const status = typeof __status === "number" ? __status : 200;
+      trace(status, null, rest);
+      return NextResponse.json(withHealth(rest, status), { status });
     }
-    return NextResponse.json(result ?? { ok: true });
+    trace(200, null, result);
+    return NextResponse.json(withHealth(result ?? { ok: true }, 200));
   } catch (e) {
-    return NextResponse.json(
-      { ok: false, error: "route_runtime_error", task, detail: (e as Error).message },
-      { status: 500 },
-    );
+    const body = { ok: false, error: "route_runtime_error", task, detail: (e as Error).message };
+    trace(500, "route_runtime_error", body);
+    return NextResponse.json(withHealth(body, 500), { status: 500 });
   }
 }
