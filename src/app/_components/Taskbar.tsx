@@ -137,11 +137,10 @@ export function Taskbar() {
       style={{
         height: 52,
         padding: "0 10px",
-        background: "rgba(255,255,255,0.85)",
-        backdropFilter: "blur(20px) saturate(180%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        borderTop: "1px solid rgba(15,17,21,0.06)",
-        boxShadow: "0 -4px 24px -8px rgba(15,17,21,0.08)",
+        background: "linear-gradient(180deg, #0F1115 0%, #18181C 70%, #0F1115 100%)",
+        color: "white",
+        borderTop: "1px solid rgba(196,30,58,0.18)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03), 0 -8px 24px -8px rgba(196,30,58,0.18)",
       }}
     >
       <div className="flex items-center gap-1 pr-2">
@@ -155,7 +154,7 @@ export function Taskbar() {
             height: 38,
             borderRadius: 8,
             background:
-              "linear-gradient(135deg, hsl(var(--primary)) 0%, #A8182F 100%)",
+              "linear-gradient(135deg, #C41E3A 0%, #A8182F 100%)",
             boxShadow: "0 4px 12px -4px rgba(196,30,58,0.4)",
           }}
         >

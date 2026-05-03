@@ -117,11 +117,11 @@ export const useWindowStore = create<Store>()(
         }
         const id = `${appId}-${Math.random().toString(36).slice(2, 8)}`;
         const i = get().windows.length;
-        // 0 in defaultSize.w/h means "50% of viewport" (rectangle, centered).
+        // 0 in defaultSize.w/h means "60% of viewport" (rectangle, centered — 20% bigger than 50%).
         const vpW = typeof window !== "undefined" ? window.innerWidth : 1280;
         const vpH = typeof window !== "undefined" ? window.innerHeight : 800;
-        const w0 = app.defaultSize.w > 0 ? app.defaultSize.w : Math.round(vpW * 0.5);
-        const h0 = app.defaultSize.h > 0 ? app.defaultSize.h : Math.round(vpH * 0.5);
+        const w0 = app.defaultSize.w > 0 ? app.defaultSize.w : Math.round(vpW * 0.6);
+        const h0 = app.defaultSize.h > 0 ? app.defaultSize.h : Math.round(vpH * 0.6);
         const { x, y } = centerPosition(w0, h0, i);
         const z = get().topZ + 1;
         set((s) => ({

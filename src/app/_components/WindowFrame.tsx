@@ -323,12 +323,12 @@ export function WindowFrame({ win }: { win: WindowState }) {
             className="w-7 h-7 grid place-items-center rounded transition"
             style={{ color: "hsl(var(--muted-foreground))" }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "hsl(var(--primary))";
+              e.currentTarget.style.background = "#C41E3A";
               e.currentTarget.style.color = "white";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "hsl(var(--muted-foreground))";
+              e.currentTarget.style.color = "#6B7280";
             }}
           >
             <X size={14} strokeWidth={1.8} />
