@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { AuthShell } from './_components/AuthShell';
 import { OsBodyClass } from './_components/OsBodyClass';
-import { loadOsTheme, themeToCss } from '@/lib/os-theme';
+import { loadOsTheme, themeToCss, loadOsExtraCss } from '@/lib/os-theme';
 import { RegistryBoot } from './_components/RegistryBoot';
 import './globals.css';
 
@@ -25,12 +25,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
   const initialPartnerSlug = h.get('x-partner-slug');
-  const theme = await loadOsTheme();
+  const [theme, extraCss] = await Promise.all([loadOsTheme(), loadOsExtraCss()]);
   const themeCss = themeToCss(theme);
   return (
     <html lang="en" className={inter.variable}>
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />
+        {extraCss && <style dangerouslySetInnerHTML={{ __html: extraCss }} />}
       </head>
       <body
         className={inter.className}

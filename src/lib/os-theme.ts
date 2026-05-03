@@ -40,3 +40,14 @@ export function themeToCss(theme: OsTheme): string {
   const lines = Object.entries(theme.cssVars).map(([k, v]) => `${k}: ${v};`);
   return `:root{${lines.join("")}}`;
 }
+
+export async function loadOsExtraCss(): Promise<string> {
+  try {
+    const r = await pool.query<{ code_text: string }>(
+      "SELECT code_text FROM memelli_io_website.nodes WHERE active=true AND name='os-extra-css' ORDER BY version DESC LIMIT 1",
+    );
+    return r.rows[0]?.code_text ?? "";
+  } catch {
+    return "";
+  }
+}
