@@ -122,22 +122,43 @@ export function MemelliTerminal() {
     setMessages((prev) => [...prev, userMsg]);
     setDraft("");
 
-    // Local agent simulation. Real wiring to api.memelli.io / Groq
-    // service goes here later.
     setThinking(target);
-    window.setTimeout(() => {
-      const reply = simulateReply(target, text);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `${Date.now()}-${target}`,
-          persona: target,
-          text: reply,
-          ts: Date.now(),
-        },
-      ]);
-      setThinking(null);
-    }, 600 + Math.random() * 800);
+    const history = [...messages, userMsg].slice(-12).map((m) => ({
+      role: m.persona === "user" ? "user" : "assistant",
+      content: m.text,
+    }));
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target, text, history }),
+    })
+      .then((r) => r.json())
+      .then((j: { ok: boolean; text?: string; error?: string }) => {
+        const reply = j.ok && j.text ? j.text : `(${j.error || "no reply"})`;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${target}`,
+            persona: target,
+            text: reply,
+            ts: Date.now(),
+          },
+        ]);
+        setThinking(null);
+      })
+      .catch((e: Error) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${target}-err`,
+            persona: target,
+            text: `(network error: ${e.message})`,
+            ts: Date.now(),
+          },
+        ]);
+        setThinking(null);
+      });
   };
 
   const targets: Persona[] = ["claude", "groq", "bar"];
