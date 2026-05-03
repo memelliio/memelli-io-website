@@ -10,6 +10,12 @@ const INK = "#0B0B0F";
 const PAPER = "#FFFFFF";
 const LINE = "#E5E7EB";
 const MUTED = "#6B7280";
+const BAR_BG = "var(--mellibar-bg, linear-gradient(180deg, #0F1115 0%, #18181C 100%))";
+const BAR_BORDER = "var(--taskbar-border-top, 1px solid rgba(196,30,58,0.18))";
+const PILL_BG = "rgba(255,255,255,0.06)";
+const PILL_BORDER = "rgba(255,255,255,0.12)";
+const PILL_INACTIVE_FG = "rgba(255,255,255,0.6)";
+const PILL_HOVER_FG = "rgba(255,255,255,0.9)";
 
 const MODES: { id: OsMode; label: string; icon: typeof UserIcon }[] = [
   { id: "personal", label: "Personal CRM", icon: UserIcon },
@@ -35,8 +41,8 @@ export function ModeToggle() {
         right: 0,
         height: TOGGLE_H,
         zIndex: 90,
-        background: PAPER,
-        borderBottom: `1px solid ${LINE}`,
+        background: BAR_BG,
+        borderBottom: BAR_BORDER,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -48,8 +54,8 @@ export function ModeToggle() {
           display: "flex",
           alignItems: "center",
           gap: 2,
-          background: "#FAFBFD",
-          border: `1px solid ${LINE}`,
+          background: PILL_BG,
+          border: `1px solid ${PILL_BORDER}`,
           borderRadius: 9999,
           padding: 3,
         }}
@@ -72,7 +78,7 @@ export function ModeToggle() {
                 background: active
                   ? `linear-gradient(135deg, ${RED}, ${RED_2})`
                   : "transparent",
-                color: active ? PAPER : MUTED,
+                color: active ? PAPER : PILL_INACTIVE_FG,
                 fontSize: 11,
                 fontWeight: 800,
                 letterSpacing: "0.08em",
@@ -84,10 +90,10 @@ export function ModeToggle() {
                   : "none",
               }}
               onMouseEnter={(e) => {
-                if (!active) e.currentTarget.style.color = INK;
+                if (!active) e.currentTarget.style.color = PILL_HOVER_FG;
               }}
               onMouseLeave={(e) => {
-                if (!active) e.currentTarget.style.color = MUTED;
+                if (!active) e.currentTarget.style.color = PILL_INACTIVE_FG;
               }}
             >
               <Icon size={11} strokeWidth={2.4} />

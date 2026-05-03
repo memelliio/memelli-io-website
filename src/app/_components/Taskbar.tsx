@@ -213,12 +213,12 @@ export function Taskbar() {
                 width: 38,
                 height: 38,
                 borderRadius: 8,
-                background: open_ ? "hsl(var(--background))" : "transparent",
+                background: open_ ? "var(--chrome-icon-hover-bg, rgba(255,255,255,0.08))" : "transparent",
               }}
               onMouseEnter={(e) => {
                 if (!open_)
                   e.currentTarget.style.background =
-                    "hsl(var(--background))";
+                    "var(--chrome-icon-hover-bg, rgba(255,255,255,0.08))";
               }}
               onMouseLeave={(e) => {
                 if (!open_) e.currentTarget.style.background = "transparent";
@@ -277,7 +277,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Auth"
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <User size={14} strokeWidth={1.8} />
@@ -285,7 +285,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Battery"
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <BatteryMedium size={14} strokeWidth={1.8} />
@@ -293,7 +293,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Network"
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Wifi size={14} strokeWidth={1.8} />
@@ -301,7 +301,7 @@ export function Taskbar() {
         <button
           type="button"
           aria-label="Volume"
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Volume2 size={14} strokeWidth={1.8} />
@@ -310,7 +310,7 @@ export function Taskbar() {
           type="button"
           aria-label="TV"
           onClick={() => open("tv")}
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Tv size={14} strokeWidth={1.8} />
@@ -319,7 +319,7 @@ export function Taskbar() {
           type="button"
           aria-label="Radio"
           onClick={() => open("radio")}
-          className="grid place-items-center text-white hover:bg-[hsl(var(--background))]"
+          className="grid place-items-center text-white hover:bg-white/10"
           style={{ height: 38, padding: "0 8px", borderRadius: 6 }}
         >
           <Radio size={14} strokeWidth={1.8} />
@@ -328,7 +328,7 @@ export function Taskbar() {
           type="button"
           aria-label="Calendar"
           onClick={() => open("calendar")}
-          className="grid items-center text-white hover:bg-[hsl(var(--background))] tabular-nums text-right"
+          className="grid items-center text-white hover:bg-white/10 tabular-nums text-right"
           style={{
             height: 38,
             padding: "0 10px",
