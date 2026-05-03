@@ -18,8 +18,15 @@ export async function GET(request: Request) {
       );
     }
 
-    const c = await cookies();
-    const token = c.get("memelli_session")?.value;
+    // Accept token from Authorization: Bearer OR memelli_session cookie
+    let token: string | undefined;
+    const authHeader = request.headers.get("authorization") || "";
+    const m = authHeader.match(/^Bearer\s+(.+)$/i);
+    if (m) token = m[1].trim();
+    if (!token) {
+      const c = await cookies();
+      token = c.get("memelli_session")?.value;
+    }
     if (!token) {
       return NextResponse.json(
         { ok: false, allowed: false, reason: "unauthenticated" },
