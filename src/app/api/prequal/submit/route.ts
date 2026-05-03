@@ -57,18 +57,18 @@ export async function POST(req: Request) {
       purpose: string;
     };
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionToken = cookieStore.get("memelli_session")?.value;
 
     let userId: string | null = null;
 
     if (sessionToken) {
       const sessionResult = await pool.query(
-        `SELECT user_id FROM auth.sessions WHERE session_token = $1 AND revoked_at IS NULL AND expires_at > now()`,
+        `SELECT user_id FROM auth.sessions WHERE token = $1 AND revoked_at IS NULL AND expires_at > now()`,
         [sessionToken]
       );
 
-      if (sessionResult.rowCount > 0) {
+      if ((sessionResult.rowCount ?? 0) > 0) {
         userId = sessionResult.rows[0].user_id;
       }
     }
