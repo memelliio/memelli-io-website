@@ -117,7 +117,12 @@ export const useWindowStore = create<Store>()(
         }
         const id = `${appId}-${Math.random().toString(36).slice(2, 8)}`;
         const i = get().windows.length;
-        const { x, y } = centerPosition(app.defaultSize.w, app.defaultSize.h, i);
+        // 0 in defaultSize.w/h means "50% of viewport" (rectangle, centered).
+        const vpW = typeof window !== "undefined" ? window.innerWidth : 1280;
+        const vpH = typeof window !== "undefined" ? window.innerHeight : 800;
+        const w0 = app.defaultSize.w > 0 ? app.defaultSize.w : Math.round(vpW * 0.5);
+        const h0 = app.defaultSize.h > 0 ? app.defaultSize.h : Math.round(vpH * 0.5);
+        const { x, y } = centerPosition(w0, h0, i);
         const z = get().topZ + 1;
         set((s) => ({
           topZ: z,
@@ -130,8 +135,8 @@ export const useWindowStore = create<Store>()(
               icon: app.icon,
               x,
               y,
-              w: app.defaultSize.w,
-              h: app.defaultSize.h,
+              w: w0,
+              h: h0,
               zIndex: z,
               minimized: false,
               maximized: false,
