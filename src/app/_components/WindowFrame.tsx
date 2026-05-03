@@ -372,7 +372,7 @@ export function WindowFrame({ win }: { win: WindowState }) {
             ctaLabel={app.body.ctaLabel}
           />
         ) : app.body.kind === "node" ? (
-          <NodeFrame nodeName={app.body.nodeName} windowId={win.id} />
+          <NodeFrame nodeName={app.body.nodeName} windowId={win.id} appId={app.id} appLabel={app.label} />
         ) : (
           <app.body.Component windowId={win.id} />
         )}
