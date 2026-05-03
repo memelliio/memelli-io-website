@@ -20,7 +20,7 @@ const STEPS = [
 
 const API_BASE =
   (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) ||
-  "https://api.memelli.io";
+  "";  // same-origin — Next.js api routes live in this app
 
 type StepId = (typeof STEPS)[number]["id"];
 

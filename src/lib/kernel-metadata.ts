@@ -40,18 +40,9 @@ async function fetchRuntimeMetadata(): Promise<KernelRuntimeResponse['data'] | n
   }
 
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.MEMELLI_CORE_API_URL || '';
-  const apiBaseUrl = configuredApiUrl || (() => {
-    const rootDomain = deriveRootDomain(normalizedHost);
-    if (!rootDomain) {
-      // Local OS=:3000 and Terminal=:3001 are the only local services.
-      // API is always api.memelli.io (dev shares prod DB per CLAUDE.md).
-      return 'https://api.memelli.io';
-    }
-    if (normalizedHost.startsWith('api.')) {
-      return `${forwardedProto}://${normalizedHost}`;
-    }
-    return `${forwardedProto}://api.${rootDomain}`;
-  })();
+  // Default to same-origin — auth/access/etc. live INSIDE this Next.js app at /api/*.
+  // The legacy api.memelli.io gateway returns 404 across every path; we no longer use it.
+  const apiBaseUrl = configuredApiUrl || `${forwardedProto}://${normalizedHost}`;
 
   try {
     const response = await fetch(`${apiBaseUrl}/api/public/kernel-runtime?domain=${encodeURIComponent(normalizedHost)}`, {

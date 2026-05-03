@@ -16,7 +16,7 @@ import {
 
 const API_BASE =
   (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) ||
-  "https://api.memelli.io";
+  "";  // same-origin — Next.js api routes live in this app
 
 function getToken(): string {
   try {

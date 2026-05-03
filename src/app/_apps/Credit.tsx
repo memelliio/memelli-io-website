@@ -19,7 +19,7 @@ const GRAY = "#6B7280";
 const API_BASE =
   (typeof window !== "undefined" &&
     (window as { MEMELLI_API_URL?: string }).MEMELLI_API_URL) ||
-  "https://api.memelli.io";
+  "";  // same-origin — Next.js api routes live in this app
 
 // ── Types ────────────────────────────────────────────────────────
 
