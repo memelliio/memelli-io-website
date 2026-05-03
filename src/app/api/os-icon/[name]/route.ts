@@ -19,7 +19,7 @@ export async function GET(
   return new Response(new Uint8Array(ic.buf), {
     headers: {
       "Content-Type": ic.mime,
-      "Cache-Control": "no-store",
+      "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=600",
     },
   });
 }

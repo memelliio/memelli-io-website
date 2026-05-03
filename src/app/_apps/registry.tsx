@@ -26,7 +26,7 @@ const I = "/api/os-icon";
 
 export const APPS: AppDef[] = [
   // ── PRIMARY ENTRY ──────────────────────────────────────────────
-  { id: "memelli-terminal", label: "Memelli Terminal", icon: `${I}/memelli-chat.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 1100, h: 720 }, body: { kind: "iframe", src: "/memelli-terminal" } },
+  { id: "memelli-terminal", label: "Memelli Terminal", icon: `${I}/memelli-chat.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 1100, h: 720 }, body: { kind: "node", nodeName: "os-app-memelliterminal" } },
 
   // ── BUSINESS ───────────────────────────────────────────────────
   { id: "pre-qualification", label: "Pre-Qualification", icon: `${I}/pre-qualification.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 980, h: 700 }, body: { kind: "node", nodeName: "os-app-prequal" } },
