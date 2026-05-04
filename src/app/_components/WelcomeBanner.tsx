@@ -10,7 +10,7 @@ import {
   Typewriter,
 } from "@/components/anim";
 
-type SlideId = "funding" | "credit" | "workspace";
+type SlideId = "workspace";
 
 type Slide = {
   id: SlideId;
@@ -23,26 +23,6 @@ type Slide = {
 };
 
 const SLIDES: Slide[] = [
-  {
-    id: "funding",
-    eyebrow: "0% Funding · Soft Pull",
-    headline: "Pre-qualify in 60 seconds.",
-    subhead:
-      "Personal and business funding eligibility — real numbers, no credit hit, no card required.",
-    cta: "Pre-Qualify Now",
-    appId: "pre-qualification",
-    accent: "linear-gradient(135deg, #C41E3A 0%, #A8182F 100%)",
-  },
-  {
-    id: "credit",
-    eyebrow: "Credit Repair · Automated",
-    headline: "Software runs the disputes for you.",
-    subhead:
-      "Letters drafted, sent certified, tracked across all three bureaus. You watch the score climb.",
-    cta: "Open Credit Repair",
-    appId: "credit-repair",
-    accent: "linear-gradient(135deg, #18181C 0%, #0F1115 100%)",
-  },
   {
     id: "workspace",
     eyebrow: "Business OS · One Account",
@@ -87,6 +67,7 @@ export function WelcomeBanner() {
 
   return (
     <div
+      className="memelli-welcome-banner-root"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       style={{
@@ -117,6 +98,14 @@ export function WelcomeBanner() {
 .memelli-welcome-banner > .memelli-banner-text { flex: 1; min-width: 0; }
 @media (max-width: 480px) {
   .memelli-welcome-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+.memelli-welcome-banner-root {
+  /* Mobile scaling – roughly 50% smaller */
+}
+@media (max-width: 900px) {
+  .memelli-welcome-banner-root {
+    zoom: 0.5;
+  }
 }
 `,
         }}
@@ -300,8 +289,6 @@ export function WelcomeBanner() {
           borderLeft: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {slide.id === "funding" && <FundingVisual />}
-        {slide.id === "credit" && <CreditVisual />}
         {slide.id === "workspace" && <WorkspaceVisual />}
       </div>
     </div>

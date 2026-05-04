@@ -22,11 +22,6 @@ import { ModulePitchModal } from "./ModulePitchModal";
 // Apps visible BEFORE login — entry-point customer flow only.
 const ANON_ALLOWED = new Set([
   "signup",
-  "pre-qualification",
-  "credit-repair",
-  "credit",
-  "credit-reports",
-  "funding",
   "welcome",
 ]);
 
