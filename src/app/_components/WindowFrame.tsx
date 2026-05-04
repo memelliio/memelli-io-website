@@ -239,163 +239,183 @@ export function WindowFrame({ win }: { win: WindowState }) {
   const isFocused = win.zIndex === topZ;
 
   return (
-    <div
-      ref={rootRef}
-      onPointerDown={() => focus(win.id)}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: win.w,
-        height: win.h,
-        transform: `translate3d(${win.x}px, ${win.y}px, 0)`,
-        zIndex: win.zIndex,
-        background: "white",
-        borderRadius: 12,
-        boxShadow: isFocused
-          ? "0 24px 48px -12px rgba(15,17,21,0.28), 0 6px 16px -4px rgba(15,17,21,0.18), 0 0 0 1px hsl(var(--line))"
-          : "0 12px 28px -8px rgba(15,17,21,0.18), 0 0 0 1px hsl(var(--line))",
-        overflow: "hidden",
-        willChange: "transform, width, height",
-        userSelect: "none",
-        transition: resizingRef.current || draggingRef.current ? "none" : "box-shadow 200ms ease",
-        WebkitFontSmoothing: "antialiased",
-      }}
-      className="flex flex-col"
-    >
-      <div
-        onPointerDown={onHeaderPointerDown}
-        onDoubleClick={() => toggleMax(win.id)}
-        className="flex items-center gap-2 px-3 py-2 cursor-move"
-        style={{
-          background: isFocused
-            ? "linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 100%)"
-            : "#F4F6FA",
-          borderBottom: "1px solid hsl(var(--line))",
-          touchAction: "none",
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .memelli-window-frame {
+              max-width: min(720px, 96vw);
+              max-height: 92vh;
+              overflow: hidden;
+            }
+            .memelli-window-frame > .memelli-window-body {
+              overflow-y: auto;
+              max-height: calc(92vh - 56px);
+            }
+            @media (max-width: 480px) and (max-height: 480px) {
+              .memelli-window-frame { max-height: 96vh; }
+            }
+          `,
         }}
+      />
+      <div
+        ref={rootRef}
+        onPointerDown={() => focus(win.id)}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: win.w,
+          height: win.h,
+          transform: `translate3d(${win.x}px, ${win.y}px, 0)`,
+          zIndex: win.zIndex,
+          background: "white",
+          borderRadius: 12,
+          boxShadow: isFocused
+            ? "0 24px 48px -12px rgba(15,17,21,0.28), 0 6px 16px -4px rgba(15,17,21,0.18), 0 0 0 1px hsl(var(--line))"
+            : "0 12px 28px -8px rgba(15,17,21,0.18), 0 0 0 1px hsl(var(--line))",
+          overflow: "hidden",
+          willChange: "transform, width, height",
+          userSelect: "none",
+          transition: resizingRef.current || draggingRef.current ? "none" : "box-shadow 200ms ease",
+          WebkitFontSmoothing: "antialiased",
+        }}
+        className="memelli-window-frame flex flex-col"
       >
-        {app.icon && (
-          <img
-            src={app.icon}
-            alt=""
-            width={18}
-            height={18}
-            draggable={false}
-            style={{ pointerEvents: "none" }}
-          />
-        )}
-        <span
-          className="text-[13px] truncate flex-1"
+        <div
+          onPointerDown={onHeaderPointerDown}
+          onDoubleClick={() => toggleMax(win.id)}
+          className="flex items-center gap-2 px-3 py-2 cursor-move"
           style={{
-            fontWeight: 600,
-            color: isFocused ? "hsl(var(--ink))" : "hsl(var(--muted-foreground))",
+            background: isFocused
+              ? "linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 100%)"
+              : "#F4F6FA",
+            borderBottom: "1px solid hsl(var(--line))",
+            touchAction: "none",
           }}
         >
-          {win.title}
-        </span>
-        <div className="flex items-center gap-0.5">
-          <button
-            type="button"
-            aria-label="Minimize"
-            onClick={() => minimize(win.id)}
-            className="w-7 h-7 grid place-items-center rounded transition"
-            style={{ color: "hsl(var(--muted-foreground))" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--background))")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <Minus size={14} strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            aria-label={win.maximized ? "Restore" : "Maximize"}
-            onClick={() => toggleMax(win.id)}
-            className="w-7 h-7 grid place-items-center rounded transition"
-            style={{ color: "hsl(var(--muted-foreground))" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--background))")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            {win.maximized ? <Copy size={13} strokeWidth={1.8} /> : <Square size={13} strokeWidth={1.8} />}
-          </button>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={() => close(win.id)}
-            className="w-7 h-7 grid place-items-center rounded transition"
-            style={{ color: "hsl(var(--muted-foreground))" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#C41E3A";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "#6B7280";
+          {app.icon && (
+            <img
+              src={app.icon}
+              alt=""
+              width={18}
+              height={18}
+              draggable={false}
+              style={{ pointerEvents: "none" }}
+            />
+          )}
+          <span
+            className="text-[13px] truncate flex-1"
+            style={{
+              fontWeight: 600,
+              color: isFocused ? "hsl(var(--ink))" : "hsl(var(--muted-foreground))",
             }}
           >
-            <X size={14} strokeWidth={1.8} />
-          </button>
+            {win.title}
+          </span>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              aria-label="Minimize"
+              onClick={() => minimize(win.id)}
+              className="w-7 h-7 grid place-items-center rounded transition"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--background))")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              <Minus size={14} strokeWidth={1.8} />
+            </button>
+            <button
+              type="button"
+              aria-label={win.maximized ? "Restore" : "Maximize"}
+              onClick={() => toggleMax(win.id)}
+              className="w-7 h-7 grid place-items-center rounded transition"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--background))")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              {win.maximized ? <Copy size={13} strokeWidth={1.8} /> : <Square size={13} strokeWidth={1.8} />}
+            </button>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => close(win.id)}
+              className="w-7 h-7 grid place-items-center rounded transition"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#C41E3A";
+                e.currentTarget.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#6B7280";
+              }}
+            >
+              <X size={14} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
-      </div>
-      <div
-        className="flex-1 bg-card relative"
-        data-window-body
-        style={{
-          minHeight: 0,
-          // GLOBAL popup scroll: every window body is the scroll container.
-          // Apps render their content; if it's taller than the window, the
-          // body scrolls. Apps that want their own internal scroll regions
-          // (Settings sidebar, Files tree) set min-height: 0 + overflow on
-          // their nested element instead.
-          overflowY: "auto",
-          overflowX: "hidden",
-          overscrollBehavior: "contain",
-          // While dragging or resizing, block all child pointer events so
-          // inputs / buttons / iframes don't intercept pointermove and break
-          // the gesture. Pointer-capture on the header keeps events flowing
-          // to the WindowFrame itself.
-          pointerEvents:
-            draggingRef.current || resizingRef.current ? "none" : "auto",
-        }}
-      >
-        {app.body.kind === "iframe" ? (
-          <iframe
-            src={app.body.src}
-            title={app.label}
-            className="w-full h-full border-0"
-          />
-        ) : app.body.kind === "stub" ? (
-          <Stub
-            appLabel={app.label}
-            title={app.body.title}
-            blurb={app.body.blurb}
-            ctaHref={app.body.ctaHref}
-            ctaLabel={app.body.ctaLabel}
-          />
-        ) : app.body.kind === "node" ? (
-          <NodeFrame nodeName={app.body.nodeName} windowId={win.id} appId={app.id} appLabel={app.label} />
-        ) : (
-          <app.body.Component windowId={win.id} />
+        <div
+          className="memelli-window-body flex-1 bg-card relative"
+          data-window-body
+          style={{
+            minHeight: 0,
+            // GLOBAL popup scroll: every window body is the scroll container.
+            // Apps render their content; if it's taller than the window, the
+            // body scrolls. Apps that want their own internal scroll regions
+            // (Settings sidebar, Files tree) set min-height: 0 + overflow on
+            // their nested element instead.
+            overflowY: "auto",
+            overflowX: "hidden",
+            overscrollBehavior: "contain",
+            // While dragging or resizing, block all child pointer events so
+            // inputs / buttons / iframes don't intercept pointermove and break
+            // the gesture. Pointer-capture on the header keeps events flowing
+            // to the WindowFrame itself.
+            pointerEvents:
+              draggingRef.current || resizingRef.current ? "none" : "auto",
+          }}
+        >
+          {app.body.kind === "iframe" ? (
+            <iframe
+              src={app.body.src}
+              title={app.label}
+              className="w-full h-full border-0"
+            />
+          ) : app.body.kind === "stub" ? (
+            <Stub
+              appLabel={app.label}
+              title={app.body.title}
+              blurb={app.body.blurb}
+              ctaHref={app.body.ctaHref}
+              ctaLabel={app.body.ctaLabel}
+            />
+          ) : app.body.kind === "node" ? (
+            <NodeFrame nodeName={app.body.nodeName} windowId={win.id} appId={app.id} appLabel={app.label} />
+          ) : (
+            <app.body.Component windowId={win.id} />
+          )}
+        </div>
+        {!win.maximized && (
+          <>
+            {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as ResizeDir[]).map(
+              (dir) => (
+                <div
+                  key={dir}
+                  onPointerDown={onResizeStart(dir)}
+                  style={{
+                    position: "absolute",
+                    cursor: CURSORS[dir],
+                    zIndex: 10,
+                    touchAction: "none",
+                    ...HANDLE_STYLE[dir],
+                  }}
+                />
+              ),
+            )}
+          </>
         )}
       </div>
-      {!win.maximized && (
-        <>
-          {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as ResizeDir[]).map(
-            (dir) => (
-              <div
-                key={dir}
-                onPointerDown={onResizeStart(dir)}
-                style={{
-                  position: "absolute",
-                  cursor: CURSORS[dir],
-                  zIndex: 10,
-                  touchAction: "none",
-                  ...HANDLE_STYLE[dir],
-                }}
-              />
-            ),
-          )}
-        </>
-      )}
-    </div>
+    </>
   );
 }

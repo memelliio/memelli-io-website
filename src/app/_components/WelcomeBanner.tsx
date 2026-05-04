@@ -110,6 +110,17 @@ export function WelcomeBanner() {
         gridTemplateColumns: "1.05fr 1fr",
       }}
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+.memelli-welcome-banner { display: flex; flex-direction: row; align-items: center; gap: 16px; }
+.memelli-welcome-banner > .memelli-banner-text { flex: 1; min-width: 0; }
+@media (max-width: 480px) {
+  .memelli-welcome-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+`,
+        }}
+      />
       <span
         aria-hidden
         style={{
@@ -147,77 +158,78 @@ export function WelcomeBanner() {
 
       {/* LEFT — pitch text + CTA */}
       <div
+        className="memelli-welcome-banner"
         style={{
           position: "relative",
           padding: "36px 32px",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
-          gap: 16,
           zIndex: 1,
         }}
       >
-        <FadeIn delay={80}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "6px 12px",
-              borderRadius: 9999,
-              background: "rgba(255,255,255,0.14)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              backdropFilter: "blur(8px)",
-              alignSelf: "flex-start",
-              fontSize: 10.5,
-              fontWeight: 800,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.95)",
-              fontFamily: MONO,
-            }}
-          >
-            <span
-              aria-hidden
+        <div className="memelli-banner-text">
+          <FadeIn delay={80}>
+            <div
               style={{
-                width: 6,
-                height: 6,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "6px 12px",
                 borderRadius: 9999,
-                background: "#10B981",
-                boxShadow: "0 0 8px #10B981",
+                background: "rgba(255,255,255,0.14)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                backdropFilter: "blur(8px)",
+                alignSelf: "flex-start",
+                fontSize: 10.5,
+                fontWeight: 800,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.95)",
+                fontFamily: MONO,
               }}
-            />
-            <span>{slide.eyebrow}</span>
-          </div>
-        </FadeIn>
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 9999,
+                  background: "#10B981",
+                  boxShadow: "0 0 8px #10B981",
+                }}
+              />
+              <span>{slide.eyebrow}</span>
+            </div>
+          </FadeIn>
 
-        <FadeIn delay={180} distance={8}>
-          <h2
-            style={{
-              fontSize: "clamp(24px, 2.4vw, 36px)",
-              fontWeight: 800,
-              lineHeight: 1.08,
-              letterSpacing: "-0.02em",
-              margin: 0,
-            }}
-          >
-            {slide.headline}
-          </h2>
-        </FadeIn>
+          <FadeIn delay={180} distance={8}>
+            <h2
+              style={{
+                fontSize: "clamp(24px, 2.4vw, 36px)",
+                fontWeight: 800,
+                lineHeight: 1.08,
+                letterSpacing: "-0.02em",
+                margin: 0,
+              }}
+            >
+              {slide.headline}
+            </h2>
+          </FadeIn>
 
-        <FadeIn delay={320}>
-          <p
-            style={{
-              fontSize: 14.5,
-              lineHeight: 1.55,
-              maxWidth: 360,
-              color: "rgba(255,255,255,0.85)",
-              margin: 0,
-            }}
-          >
-            {slide.subhead}
-          </p>
-        </FadeIn>
+          <FadeIn delay={320}>
+            <p
+              style={{
+                fontSize: 14.5,
+                lineHeight: 1.55,
+                maxWidth: 360,
+                color: "rgba(255,255,255,0.85)",
+                margin: 0,
+              }}
+            >
+              {slide.subhead}
+            </p>
+          </FadeIn>
+        </div>
 
         <FadeIn delay={520}>
           <div

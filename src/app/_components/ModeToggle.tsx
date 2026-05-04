@@ -33,118 +33,133 @@ export function ModeToggle() {
   // Always render. Visibility for anonymous + logged-in is the same.
   // Icon-filter at Desktop.tsx is what enforces what each role can open.
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: TOP_BAR,
-        left: 0,
-        right: 0,
-        height: TOGGLE_H,
-        zIndex: 90,
-        background: BAR_BG,
-        borderBottom: BAR_BORDER,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 16px",
-      }}
-    >
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+@media (max-width: 900px) {
+  .memelli-mode-bar { top: 56px !important; height: 32px !important; }
+  .memelli-mode-bar .memelli-mode-add { display: none !important; }
+  .memelli-mode-bar button { padding: 4px 10px !important; font-size: 10px !important; }
+}
+`,
+        }}
+      />
       <div
+        className="memelli-mode-bar"
         style={{
+          position: "fixed",
+          top: TOP_BAR,
+          left: 0,
+          right: 0,
+          height: TOGGLE_H,
+          zIndex: 90,
+          background: BAR_BG,
+          borderBottom: BAR_BORDER,
           display: "flex",
           alignItems: "center",
-          gap: 2,
-          background: PILL_BG,
-          border: `1px solid ${PILL_BORDER}`,
-          borderRadius: 9999,
-          padding: 3,
+          justifyContent: "center",
+          padding: "0 16px",
         }}
       >
-        {MODES.map((m) => {
-          const Icon = m.icon;
-          const active = mode === m.id;
-          return (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => setMode(m.id)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 16px",
-                borderRadius: 9999,
-                border: 0,
-                background: active
-                  ? `linear-gradient(135deg, ${RED}, ${RED_2})`
-                  : "transparent",
-                color: active ? PAPER : PILL_INACTIVE_FG,
-                fontSize: 11,
-                fontWeight: 800,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-                transition: "background 150ms",
-                boxShadow: active
-                  ? "0 4px 12px -4px rgba(196,30,58,0.4)"
-                  : "none",
-              }}
-              onMouseEnter={(e) => {
-                if (!active) e.currentTarget.style.color = PILL_HOVER_FG;
-              }}
-              onMouseLeave={(e) => {
-                if (!active) e.currentTarget.style.color = PILL_INACTIVE_FG;
-              }}
-            >
-              <Icon size={11} strokeWidth={2.4} />
-              {m.label}
-            </button>
-          );
-        })}
-      </div>
-      {/* Add Panel button — absolute right of the same bar, same line as the switcher */}
-      <button
-        type="button"
-        onClick={addPage}
-        title="Add panel"
-        style={{
-          position: "absolute",
-          right: 16,
-          top: "50%",
-          transform: "translateY(-50%)",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "6px 12px",
-          borderRadius: 9999,
-          border: `1px solid ${LINE}`,
-          background: PAPER,
-          color: INK,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          fontFamily: "inherit",
-        }}
-      >
-        <Plus size={11} strokeWidth={2.4} />
-        Add panel
-        <span
+        <div
           style={{
-            fontFamily:
-              "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
-            fontSize: 10,
-            color: MUTED,
-            paddingLeft: 6,
-            borderLeft: `1px solid ${LINE}`,
-            marginLeft: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            background: PILL_BG,
+            border: `1px solid ${PILL_BORDER}`,
+            borderRadius: 9999,
+            padding: 3,
           }}
         >
-          {pages.length}
-        </span>
-      </button>
-    </div>
+          {MODES.map((m) => {
+            const Icon = m.icon;
+            const active = mode === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setMode(m.id)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 16px",
+                  borderRadius: 9999,
+                  border: 0,
+                  background: active
+                    ? `linear-gradient(135deg, ${RED}, ${RED_2})`
+                    : "transparent",
+                  color: active ? PAPER : PILL_INACTIVE_FG,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  transition: "background 150ms",
+                  boxShadow: active
+                    ? "0 4px 12px -4px rgba(196,30,58,0.4)"
+                    : "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.color = PILL_HOVER_FG;
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.color = PILL_INACTIVE_FG;
+                }}
+              >
+                <Icon size={11} strokeWidth={2.4} />
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Add Panel button — absolute right of the same bar, same line as the switcher */}
+        <button
+          className="memelli-mode-add"
+          type="button"
+          onClick={addPage}
+          title="Add panel"
+          style={{
+            position: "absolute",
+            right: 16,
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 12px",
+            borderRadius: 9999,
+            border: `1px solid ${LINE}`,
+            background: PAPER,
+            color: INK,
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          <Plus size={11} strokeWidth={2.4} />
+          Add panel
+          <span
+            style={{
+              fontFamily:
+                "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+              fontSize: 10,
+              color: MUTED,
+              paddingLeft: 6,
+              borderLeft: `1px solid ${LINE}`,
+              marginLeft: 2,
+            }}
+          >
+            {pages.length}
+          </span>
+        </button>
+      </div>
+    </>
   );
 }
 
