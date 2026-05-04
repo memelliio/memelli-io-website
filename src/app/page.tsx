@@ -7,7 +7,6 @@ import { WindowFrame } from "./_components/WindowFrame";
 import { WelcomeBanner } from "./_components/WelcomeBanner";
 import { WindowList } from "./_components/WindowList";
 import { AppOpener } from "./_components/AppOpener";
-import { ModeToggle } from "./_components/ModeToggle";
 import { JourneyTab } from "./_components/JourneyTab";
 import { SignInTab } from "./_components/SignInTab";
 import { BusinessCenter } from "./_components/BusinessCenter";
@@ -34,7 +33,6 @@ export default function OsPage() {
       <StoreBridgeShim />
       <AppOpener />
       <MelliBar />
-      <ModeToggle />
       {showBusiness ? <BusinessCenter /> : <Desktop />}
       {windows.map((w) => (
         <WindowFrame key={w.id} win={w} />
