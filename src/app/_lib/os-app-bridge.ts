@@ -1,5 +1,4 @@
-use client
-
+"use client";
 declare global {
   interface Window {
     __memelliAppBridge?: {
