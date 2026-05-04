@@ -10,9 +10,10 @@ cmds = [
 [phases.build]
 cmds = [
   "pnpm build",
+  "mkdir -p .next/standalone/.next/server",
+  "cp -r .next/server/. .next/standalone/.next/server/",
   "cp -r .next/static .next/standalone/.next/static",
-  "cp -r public .next/standalone/public",
-  "cp -r .next/server/app .next/standalone/.next/server/app"
+  "cp -r public .next/standalone/public"
 ]
 
 [variables]
