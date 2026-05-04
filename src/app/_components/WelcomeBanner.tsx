@@ -111,7 +111,7 @@ export function WelcomeBanner() {
         position: "fixed",
         left: "50%",
         top: "50%",
-        width: "clamp(640px, 60vw, 980px)",
+        width: 'min(96vw, 980px)',
         height: "clamp(420px, 56vh, 600px)",
         transform: `translate(-50%, -50%) ${leaving ? "scale(0.96)" : "scale(1)"}`,
         opacity: leaving ? 0 : 1,
@@ -131,26 +131,16 @@ export function WelcomeBanner() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-.memelli-welcome-banner { display: flex; flex-direction: row; align-items: center; gap: 16px; }
+.memelli-welcome-banner { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
 .memelli-welcome-banner > .memelli-banner-text { flex: 1; min-width: 0; }
-@media (max-width: 480px) {
-  .memelli-welcome-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
-}
+/* mobile fallback consolidated into base rule */
 .memelli-welcome-banner-root {
   /* Mobile scaling – roughly 50% smaller */
 }
-@media (max-width: 900px) {
-  .memelli-welcome-banner-root {
-    zoom: 0.5;
-  }
-}
+@media (max-width: 900px) { .memelli-welcome-banner-root { width: min(96vw, 980px); padding: clamp(16px, 4vw, 28px); } .memelli-welcome-banner-root > * { grid-template-columns: 1fr !important; min-width: 0 !important; } }
 
 /* Tiles grid responsive layout */
-.memelli-banner-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
+.memelli-banner-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
 @media (max-width: 900px) {
   .memelli-banner-tiles {
     grid-template-columns: 1fr 1fr;
@@ -579,7 +569,7 @@ function CreditVisual() {
           style={{
             marginTop: "auto",
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
             gap: 8,
             paddingTop: 12,
             borderTop: "1px solid rgba(255,255,255,0.10)",

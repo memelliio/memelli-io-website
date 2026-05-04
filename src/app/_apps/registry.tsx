@@ -10,15 +10,11 @@ import { Clock } from "./Clock";
 import { MelliBarSettings } from "./MelliBarSettings";
 import { MemelliTerminal } from "./MemelliTerminal";
 import { SignUp } from "./SignUp";
-import { CreditRepair } from "./CreditRepair";
-import { CreditReports } from "./CreditReports";
 import { DocuVault } from "./DocuVault";
 import { CRM } from "./CRM";
 import { Ecommerce } from "./Ecommerce";
 import { CommerceAdmin } from "./CommerceAdmin";
 import { CRMAdmin } from "./CRMAdmin";
-import { PreQual } from "./PreQual";
-import { Credit } from "./Credit";
 import { ClientWorkspace } from "./ClientWorkspace";
 import { PartnersHub } from "./PartnersHub";
 
@@ -29,11 +25,6 @@ export const APPS: AppDef[] = [
   { id: "memelli-terminal", label: "Memelli Terminal", icon: `${I}/memelli-chat.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 720, h: 500 }, body: { kind: "node", nodeName: "os-app-memelliterminal" } },
 
   // ── BUSINESS ───────────────────────────────────────────────────
-  { id: "pre-qualification", label: "Pre-Qualification", icon: `${I}/pre-qualification.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 980, h: 700 }, body: { kind: "node", nodeName: "os-app-prequal" } },
-  { id: "funding", label: "Funding", icon: `${I}/funding.png`, category: "business", modes: ["personal", "business"], badge: 3, defaultSize: { w: 760, h: 500 }, body: { kind: "stub", title: "Funding", blurb: "Funding requests in flight.", ctaHref: "/dashboard/funding", ctaLabel: "Open Funding" } },
-  { id: "credit-repair", label: "Credit Repair", icon: `${I}/credit-reports.png`, category: "business", modes: ["personal", "business"], badge: 2, singleton: true, defaultSize: { w: 920, h: 700 }, body: { kind: "node", nodeName: "os-app-creditrepair" } },
-  { id: "credit-reports", label: "Credit Reports", icon: `${I}/credit-reports.png`, category: "business", modes: ["business"], singleton: true, defaultSize: { w: 1000, h: 720 }, body: { kind: "node", nodeName: "os-app-creditreports" } },
-  { id: "credit", label: "Credit", icon: `${I}/credit-reports.png`, category: "business", modes: ["personal", "business"], singleton: true, defaultSize: { w: 880, h: 640 }, body: { kind: "node", nodeName: "os-app-credit" } },
   { id: "crm", label: "CRM", icon: `${I}/relationships.png`, category: "business", modes: ["business"], badge: 28, singleton: true, defaultSize: { w: 1280, h: 760 }, body: { kind: "node", nodeName: "os-app-crmadmin" } },
   { id: "companies", label: "Companies", icon: `${I}/companies.png`, category: "business", modes: ["business"], defaultSize: { w: 720, h: 480 }, body: { kind: "stub", title: "Companies", blurb: "Org records.", ctaHref: "/dashboard/companies", ctaLabel: "Open" } },
   { id: "deals", label: "Deals", icon: `${I}/deals.png`, category: "business", modes: ["business"], defaultSize: { w: 720, h: 480 }, body: { kind: "stub", title: "Deals", blurb: "Active deals.", ctaHref: "/dashboard/deals", ctaLabel: "Open" } },
