@@ -16,17 +16,67 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-export const metadata: Metadata = {
-  title: 'memelli',
-  description: 'Memelli Universe — Command Center',
-  themeColor: '#C41E3A',
-};
+/**
+ * Generate metadata at request‑time.
+ * Attempts to fetch dynamic meta from `/api/os-node/os-config-meta`.
+ * The endpoint is expected to return raw JavaScript that assigns
+ * `module.exports.meta = { title, description, image }`.
+ * If the fetch or compilation fails, static defaults are used.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  // static fallback values
+  const fallback: Metadata = {
+    title: 'memelli',
+    description: 'Memelli Universe — Command Center',
+    themeColor: '#C41E3A',
+  };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/os-node/os-config-meta`, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) return fallback;
+
+    // Assume the API returns raw JS code (e.g. "module.exports.meta = { ... }")
+    const code = await res.text();
+
+    // Compile the code in an isolated context
+    const m: { exports: any } = { exports: {} };
+    const fn = new Function('module', 'exports', code);
+    fn(m, m.exports);
+
+    const meta = m.exports?.meta;
+    if (!meta) return fallback;
+
+    const ogImage = meta.image
+      ? {
+          images: [{ url: meta.image }],
+        }
+      : undefined;
+
+    return {
+      title: meta.title ?? fallback.title,
+      description: meta.description ?? fallback.description,
+      openGraph: ogImage,
+      themeColor: '#C41E3A',
+    };
+  } catch {
+    // any error – use fallback
+    return fallback;
+  }
+}
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const h = await headers();
   const initialPartnerSlug = h.get('x-partner-slug');
   const [theme, extraCss] = await Promise.all([loadOsTheme(), loadOsExtraCss()]);
   const combinedCss = themeToCss(theme) + '\n' + (extraCss || '');
+
   return (
     <html lang="en" className={inter.variable}>
       <head>

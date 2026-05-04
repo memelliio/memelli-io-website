@@ -14,6 +14,7 @@ import { useWindowStore } from "./_lib/window-store";
 import { useOsMode } from "./_lib/os-mode-store";
 import { DbChrome } from "./_components/DbChrome";
 import { StoreBridgeShim } from "./_lib/os-app-bridge";
+import { PromoStrip } from "./_components/PromoStrip";
 
 export default function OsPage() {
   const windows = useWindowStore((s) => s.windows);
@@ -30,6 +31,7 @@ export default function OsPage() {
         color: "hsl(var(--ink))",
       }}
     >
+      <PromoStrip />
       <StoreBridgeShim />
       <AppOpener />
       <MelliBar />
