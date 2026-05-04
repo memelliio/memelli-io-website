@@ -15,7 +15,6 @@ import { FloatingOrbWindow } from '../../components/FloatingOrbWindow';
 import { FloatingWindow } from '../../components/FloatingWindow';
 
 // Lazy-loaded module panels — open inside hero tabs, never as pages
-const IPTVDashboard   = nextDynamic(async () => ({ default: () => null as any }), { ssr: false }); // stub: page-route import broke clientReferenceManifest in standalone build
 const VpnPanel        = nextDynamic(() => import('../../components/modules/VpnPanel').then(m => ({ default: m.VpnPanel })), { ssr: false });
 const CrmPanel        = nextDynamic(() => import('../../components/modules/CrmPanel').then(m => ({ default: m.CrmPanel })), { ssr: false });
 const AnalyticsPanel  = nextDynamic(() => import('../../components/modules/AnalyticsPanel').then(m => ({ default: m.AnalyticsPanel })), { ssr: false });
@@ -1090,7 +1089,7 @@ interface MelliChatState {
 
 /* ── Renders any module by id inside hero tab or floating window ── */
 function ModuleContent({ moduleId, isAdmin }: { moduleId: string; isAdmin: boolean }) {
-  if (moduleId === 'iptv')      return <IPTVDashboard />;
+  if (moduleId === "iptv") return null;
   if (moduleId === 'vpn')       return <VpnPanel />;
   if (moduleId === 'crm')       return <CrmPanel />;
   if (moduleId === 'analytics') return <AnalyticsPanel />;
