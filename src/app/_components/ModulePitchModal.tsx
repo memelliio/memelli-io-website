@@ -1,5 +1,6 @@
 "use client";
 
+
 import { PartnerLogo } from "@/app/_components/PartnerLogo";
 import { useEffect } from "react";
 import { ArrowRight, Check, Terminal, FileText, X } from "lucide-react";
@@ -98,32 +99,6 @@ export function ModulePitchModal({
         fontFamily: FONT,
       }}
     >
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `.memelli-pitch-modal-outer {
-  max-width: min(640px, 94vw);
-  max-height: 92vh;
-  overflow-y: auto;
-}
-.memelli-pitch-modal-inner {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 14px;
-}
-.memelli-pitch-modal-inner > .memelli-pitch-text {
-  flex: 1;
-  min-width: 0;
-}
-@media (max-width: 480px) {
-  .memelli-pitch-modal-inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-}`,
-        }}
-      />
       <Reveal
         variant={LAYOUT_REVEAL[pitch.layout]}
         duration={620}
@@ -195,7 +170,6 @@ function SplitRedLayout({ pitch, onAction }: LayoutProps) {
 
   return (
     <div
-      className="memelli-pitch-modal-outer"
       style={{
         background: PAPER,
         borderRadius: 18,
@@ -514,7 +488,6 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
 
   return (
     <div
-      className="memelli-pitch-modal-outer"
       style={{
         background: `linear-gradient(180deg, ${INK} 0%, ${INK_2} 100%)`,
         color: PAPER,
@@ -697,39 +670,32 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
         <FadeIn delay={120}>
           <Eyebrow color={RED}>{pitch.eyebrow}</Eyebrow>
         </FadeIn>
-
-        <div className="memelli-pitch-modal-inner">
-          <div className="memelli-pitch-text">
-            <BlurIn delay={220}>
-              <h2
-                style={{
-                  fontSize: 28,
-                  fontWeight: 800,
-                  letterSpacing: "-0.02em",
-                  margin: 0,
-                  lineHeight: 1.08,
-                  color: PAPER,
-                }}
-              >
-                {pitch.headline}
-              </h2>
-            </BlurIn>
-            <FadeIn delay={380}>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 14,
-                  lineHeight: 1.55,
-                  color: "rgba(255,255,255,0.7)",
-                }}
-              >
-                {pitch.subhead}
-              </p>
-            </FadeIn>
-          </div>
-          <CtaRow pitch={pitch} onAction={onAction} dark />
-        </div>
-
+        <BlurIn delay={220}>
+          <h2
+            style={{
+              fontSize: 28,
+              fontWeight: 800,
+              letterSpacing: "-0.02em",
+              margin: 0,
+              lineHeight: 1.08,
+              color: PAPER,
+            }}
+          >
+            {pitch.headline}
+          </h2>
+        </BlurIn>
+        <FadeIn delay={380}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 14,
+              lineHeight: 1.55,
+              color: "rgba(255,255,255,0.7)",
+            }}
+          >
+            {pitch.subhead}
+          </p>
+        </FadeIn>
         <div>
           <Stagger baseDelay={520} gap={70}>
             {pitch.bullets.map((b, i) => (
@@ -739,6 +705,9 @@ function MoneyTowerLayout({ pitch, onAction }: LayoutProps) {
             ))}
           </Stagger>
         </div>
+        <FadeIn delay={520 + pitch.bullets.length * 70 + 80}>
+          <CtaRow pitch={pitch} onAction={onAction} dark />
+        </FadeIn>
       </div>
     </div>
   );
@@ -753,7 +722,6 @@ function TerminalCardLayout({ pitch, onAction }: LayoutProps) {
   const lineGap = 320;
   return (
     <div
-      className="memelli-pitch-modal-outer"
       style={{
         background: PAPER,
         borderRadius: 18,
@@ -1013,7 +981,6 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
   ];
   return (
     <div
-      className="memelli-pitch-modal-outer"
       style={{
         background: PAPER,
         borderRadius: 18,
@@ -1110,6 +1077,28 @@ function TriStackLayout({ pitch, onAction }: LayoutProps) {
                   alignItems: "center",
                   gap: 8,
                 }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 8,
+                    height: 8,
+                    background: b.tone,
+                    transform: "skewX(-12deg)",
+                    borderRadius: 1,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: "0.32em",
+                    textTransform: "uppercase",
+                    color: PAPER,
+                  }}
+                >
+                  {b.name}
+                </span>
               </div>
               <div
                 style={{
@@ -1519,7 +1508,7 @@ function TermLine({
           opacity: muted ? 0.55 : 1,
         }}
       >
-        <span style={{ color: "rgba(255,255,0.4)", flexShrink: 0 }}>
+        <span style={{ color: "rgba(255,255,255,0.4)", flexShrink: 0 }}>
           {ts}
         </span>
         <span style={{ color: PAPER }}>{children}</span>
