@@ -16,7 +16,16 @@ function getStoragePrefix(): string {
   return 'live';
 }
 
+function resolveAuthApiUrl(): string {
+  // On the browser, use a relative path so /api/auth/* hits the Next.js
+  // proxy in apps/web/src/app/api/auth/*. The proxy forwards to the live
+  // working auth backend (design.memelli.io/admin/auth/*), bypassing the
+  // gateway 404 on api.memelli.io/api/auth/*.
+  if (typeof window !== "undefined") return "";
+  return API_URL;
+}
+
 export const { AuthProvider, useAuth } = createAuthContext({
-  apiUrl: API_URL,
+  apiUrl: resolveAuthApiUrl(),
   storagePrefix: getStoragePrefix(),
 });

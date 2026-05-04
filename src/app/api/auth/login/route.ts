@@ -1,14 +1,41 @@
-// Shim — delegates to /api/in dispatcher. All logic in os-route-auth.login DB row.
-// Edit the row → live in 2s. No deploy.
-import { dispatch } from "@/lib/dispatch";
+import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+const UPSTREAM =
+  process.env.AUTH_LOGIN_UPSTREAM ?? "https://design.memelli.io/admin/auth/login";
 
-export async function POST(req: Request) {
-  let context: Record<string, unknown> = {};
-  try { context = (await req.json()) as Record<string, unknown>; } catch { /* empty body */ }
-  // Merge query string (if any)
-  try { const u = new URL(req.url); u.searchParams.forEach((v, k) => { if (!(k in context)) context[k] = v; }); } catch {}
-  return dispatch({ task: "auth.login", context, request: req });
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Invalid JSON body" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const upstream = await fetch(UPSTREAM, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    const text = await upstream.text();
+    return new NextResponse(text, {
+      status: upstream.status,
+      headers: {
+        "content-type":
+          upstream.headers.get("content-type") ?? "application/json",
+      },
+    });
+  } catch (e: unknown) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: e instanceof Error ? e.message : "upstream unreachable",
+      },
+      { status: 502 },
+    );
+  }
 }

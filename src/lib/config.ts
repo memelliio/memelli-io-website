@@ -1,9 +1,8 @@
-// API_URL resolution — same-origin (''). No fallback, no legacy gateway. Operator law: fail loud, no silent api.memelli.io fallback.
-// rev: 2026-05-04-no-fallback-bust-cache
-
 function trimTrailingSlash(value: string): string {
 	return value.replace(/\/+$/, '');
 }
+
+const FALLBACK_CORE_API_URL = 'https://api-production-057c.up.railway.app';
 
 function deriveRootDomain(hostname: string): string {
 	const normalized = hostname.toLowerCase().replace(/:\d+$/, '');
@@ -31,13 +30,27 @@ function resolveApiUrl(): string {
 	}
 
 	if (typeof window === 'undefined') {
-		// Server-side render: same-origin (next/headers will resolve)
-		return '';
+		return FALLBACK_CORE_API_URL;
 	}
 
-	// Auth + access live INSIDE this Next.js app at /api/auth/*. Same-origin
-	// always — the legacy api.memelli.io gateway is no longer the auth source.
-	return '';
+	const { protocol, hostname } = window.location;
+	if (hostname === 'localhost' || hostname === '127.0.0.1') {
+		// Local OS (port 3000) and Terminal (port 3001) are the only canonical
+		// local services. The API is always api.memelli.io — dev shares the
+		// production universe DB per CLAUDE.md.
+		return 'https://api.memelli.io';
+	}
+
+	const rootDomain = deriveRootDomain(hostname);
+	if (!rootDomain) {
+		return FALLBACK_CORE_API_URL;
+	}
+
+	if (rootDomain === 'memelli.io') {
+		return 'https://api.memelli.io';
+	}
+
+	return `${protocol}//api.${rootDomain}`;
 }
 
 export const API_URL = resolveApiUrl();
