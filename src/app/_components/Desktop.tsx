@@ -19,13 +19,42 @@ import { useAuth } from "@/contexts/auth";
 import { getPitch, type ModulePitch } from "../_lib/module-pitches";
 import { ModulePitchModal } from "./ModulePitchModal";
 
-// Apps visible BEFORE login — entry-point customer flow only.
-const ANON_ALLOWED = new Set([
+// Runtime‑loaded anon‑allowed config
+let _anonAllowedCache:
+  | { items: Set<string>; ts: number }
+  | null = null;
+const ANON_DEFAULT = new Set([
   "signup",
+  "signin",
   "welcome",
+  "crm",
+  "memelli-terminal",
+  "notes",
 ]);
+async function loadAnonAllowed(): Promise<Set<string>> {
+  if (_anonAllowedCache && Date.now() - _anonAllowedCache.ts < 60000) {
+    return _anonAllowedCache.items;
+  }
+  try {
+    const r = await fetch("/api/os-node/os-config-anon-allowed", {
+      cache: "no-store",
+    });
+    if (!r.ok) return ANON_DEFAULT;
+    const j = await r.json();
+    if (!j.ok || !j.code) return ANON_DEFAULT;
+    const m = { exports: {} as { apps?: string[] } };
+    new Function("module", "exports", j.code)(m, m.exports);
+    const arr = Array.isArray(m.exports.apps) ? m.exports.apps : null;
+    if (!arr) return ANON_DEFAULT;
+    const set = new Set<string>(arr);
+    _anonAllowedCache = { items: set, ts: Date.now() };
+    return set;
+  } catch {
+    return ANON_DEFAULT;
+  }
+}
 
-// Sub-steps per app — shown when the operator clicks the expand chevron
+// Sub‑steps per app — shown when the operator clicks the expand chevron
 // on an icon. Each step is clickable to jump straight to that step.
 const APP_STEPS: Record<string, string[]> = {
   "pre-qualification": [
@@ -57,8 +86,8 @@ const APP_STEPS: Record<string, string[]> = {
   ],
 };
 
-// Tasks-due count per app (mock — replace with live signal later).
-// First-time users see PreQual flagged with 1 outstanding task.
+// Tasks‑due count per app (mock — replace with live signal later).
+// First‑time users see PreQual flagged with 1 outstanding task.
 const TASKS_DUE: Record<string, number> = {
   "pre-qualification": 1,
 };
@@ -88,9 +117,15 @@ export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
   const [draggingAppId, setDraggingAppId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<number | null>(null);
   const [pitch, setPitch] = useState<ModulePitch | null>(null);
+  const [anonAllowed, setAnonAllowed] = useState<Set<string>>(ANON_DEFAULT);
 
   useEffect(() => {
     setHydrated(true);
+  }, []);
+
+  // Load anon‑allowed config after mount
+  useEffect(() => {
+    loadAnonAllowed().then(setAnonAllowed);
   }, []);
 
   const panelSettings = useWindowStore((s) => s.panelSettings);
@@ -115,14 +150,13 @@ export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
   const { user } = useAuth();
 
   // Visibility:
-  //   • Anonymous (no user)        → ALL icons (no mode filter, full surface)
-  //   • Logged-in                  → current mode filter (Personal vs Business)
-  // Pitch-modal gates which apps actually OPEN for an anon user.
+  //   • Anonymous (no user) → only apps in anonAllowed set
+  //   • Logged‑in          → current mode filter (Personal vs Business)
   const allowed = (id: string): boolean => {
     const a = APPS.find((x) => x.id === id);
     if (!a) return false;
     if (a.category === "hidden") return false;
-    if (!user) return true; // anon sees everything
+    if (!user) return anonAllowed.has(id);
     if (!a.modes || a.modes.length === 0) return true;
     return a.modes.includes(mode);
   };

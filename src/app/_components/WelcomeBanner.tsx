@@ -22,7 +22,7 @@ type Slide = {
   accent: string;
 };
 
-const SLIDES: Slide[] = [
+const DEFAULT_SLIDES: Slide[] = [
   {
     id: "workspace",
     eyebrow: "Business OS · One Account",
@@ -39,20 +39,53 @@ const ROTATE_MS = 7500;
 const PAPER = "#FFFFFF";
 const MONO = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
 
+/* Module‑scope cache for the fetched slides */
+let cachedSlides: Slide[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 60_000; // 60 seconds
+
 export function WelcomeBanner() {
   const open = useWindowStore((s) => s.open);
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
 
+  /* Fetch slides once per mount, using the 60 s cache */
+  useEffect(() => {
+    if (cachedSlides && Date.now() - cacheTimestamp < CACHE_TTL) {
+      setSlides(cachedSlides);
+      return;
+    }
+
+    fetch("/api/os-node/os-config-welcome-slides")
+      .then((res) => res.text())
+      .then((code) => {
+        const m: { exports: any } = { exports: {} };
+        // eslint-disable-next-line no-new-func
+        const fn = new Function("module", "exports", code);
+        fn(m, m.exports);
+        const fetched: Slide[] = m.exports?.slides;
+        if (Array.isArray(fetched) && fetched.length) {
+          cachedSlides = fetched;
+          cacheTimestamp = Date.now();
+          setSlides(fetched);
+        }
+      })
+      .catch(() => {
+        // Silently ignore errors – keep default slides
+      });
+  }, []);
+
+  /* Rotation logic */
   useEffect(() => {
     if (!visible || leaving || paused) return;
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % SLIDES.length);
+      setIndex((i) => (i + 1) % slides.length);
     }, ROTATE_MS);
     return () => window.clearInterval(id);
-  }, [visible, leaving, paused]);
+  }, [visible, leaving, paused, slides]);
 
   const dismiss = (openCta?: string) => {
     setLeaving(true);
@@ -63,7 +96,7 @@ export function WelcomeBanner() {
   };
 
   if (!visible) return null;
-  const slide = SLIDES[index];
+  const slide = slides[index];
 
   return (
     <div
@@ -250,7 +283,7 @@ export function WelcomeBanner() {
             </button>
 
             <div style={{ display: "flex", gap: 6 }}>
-              {SLIDES.map((s, i) => (
+              {slides.map((s, i) => (
                 <button
                   key={s.id}
                   type="button"
@@ -522,20 +555,12 @@ function CreditVisual() {
         >
           <RepairChip
             label="Removed"
-            value={
-              <CountUp to={3} duration={1100} delay={baseDelay + 5 * lineGap + 200} />
-            }
+            value={<CountUp to={3} duration={1100} delay={baseDelay + 5 * lineGap + 200} />}
             tone="#10B981"
           />
           <RepairChip
             label="Letters"
-            value={
-              <CountUp
-                to={12}
-                duration={1200}
-                delay={baseDelay + 5 * lineGap + 320}
-              />
-            }
+            value={<CountUp to={12} duration={1200} delay={baseDelay + 5 * lineGap + 320} />}
             tone="#6366F1"
           />
           <RepairChip
@@ -543,11 +568,7 @@ function CreditVisual() {
             value={
               <>
                 +
-                <CountUp
-                  to={47}
-                  duration={1300}
-                  delay={baseDelay + 5 * lineGap + 440}
-                />
+                <CountUp to={47} duration={1300} delay={baseDelay + 5 * lineGap + 440} />
               </>
             }
             tone="var(--brand-color, #C41E3A)"
