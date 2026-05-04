@@ -16,3 +16,23 @@
 
 html, body { margin: 0; padding: 0; }
 * { box-sizing: border-box; }
+
+*:focus-visible {
+  outline: 2px solid var(--brand-color, #C41E3A);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 8px;
+  background: #C41E3A;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 100000;
+  text-decoration: none;
+}
+.skip-link:focus { top: 8px; }

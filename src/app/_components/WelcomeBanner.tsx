@@ -28,7 +28,7 @@ const DEFAULT_SLIDES: Slide[] = [
     eyebrow: "Business OS · One Account",
     headline: "Run the whole business from one workspace.",
     subhead:
-      "CRM, funding, content, calls, video — every module signs in once and shares the same data.",
+      "CRM, content, calls, video, partners — every module signs in once and shares the same data.",
     cta: "Open CRM",
     appId: "crm",
     accent: "linear-gradient(135deg, #C41E3A 0%, #18181C 100%)",
@@ -100,9 +100,13 @@ export function WelcomeBanner() {
 
   return (
     <div
+      role="region"
+      aria-label="Welcome banner"
       className="memelli-welcome-banner-root"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
       style={{
         position: "fixed",
         left: "50%",
@@ -179,8 +183,8 @@ export function WelcomeBanner() {
           position: "absolute",
           top: 12,
           right: 12,
-          width: 32,
-          height: 32,
+          width: 44,
+          height: 44,
           borderRadius: 8,
           background: "rgba(255,255,255,0.10)",
           color: "rgba(255,255,255,0.85)",
@@ -307,17 +311,29 @@ export function WelcomeBanner() {
                   aria-label={`Slide ${i + 1}`}
                   onClick={() => setIndex(i)}
                   style={{
-                    width: i === index ? 22 : 6,
-                    height: 6,
-                    borderRadius: 9999,
-                    background:
-                      i === index ? PAPER : "rgba(255,255,255,0.35)",
+                    width: 24,
+                    height: 24,
                     border: 0,
-                    cursor: "pointer",
-                    transition: "width 200ms ease, background 200ms ease",
+                    background: "transparent",
                     padding: 0,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
+                >
+                  <span
+                    style={{
+                      width: i === index ? 22 : 6,
+                      height: 6,
+                      borderRadius: 9999,
+                      background:
+                        i === index ? PAPER : "rgba(255,255,255,0.35)",
+                      transition:
+                        "width 200ms ease, background 200ms ease",
+                    }}
+                  />
+                </button>
               ))}
             </div>
           </div>
@@ -696,7 +712,6 @@ function RepairChip({
 function WorkspaceVisual() {
   const tiles = [
     { label: "CRM", n: 28 },
-    { label: "Funding", n: 7 },
     { label: "Credit", n: 3 },
     { label: "DocuVault", n: 12 },
     { label: "Phone", n: 4 },

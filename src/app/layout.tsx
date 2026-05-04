@@ -26,7 +26,7 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   // static fallback values
   const fallback: Metadata = {
-    title: 'memelli',
+    title: 'Memelli — Business OS',
     description: 'Memelli Universe — Command Center',
     themeColor: '#C41E3A',
   };
@@ -92,9 +92,14 @@ export default async function RootLayout({
           fontFamily: 'var(--font-inter), Inter, system-ui, -apple-system, sans-serif',
         }}
       >
+        <a href="#main" className="skip-link">
+          Skip to main content
+        </a>
         <OsBodyClass />
         <RegistryBoot />
-        <AuthShell initialPartnerSlug={initialPartnerSlug}>{children}</AuthShell>
+        <main id="main">
+          <AuthShell initialPartnerSlug={initialPartnerSlug}>{children}</AuthShell>
+        </main>
       </body>
     </html>
   );
