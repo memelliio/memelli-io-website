@@ -43,6 +43,8 @@ export default function OsPage() {
       <JourneyTab />
       <Taskbar />
       <DbChrome nodeName="os-chrome-modetoggle" />
+      <DbChrome nodeName="os-chrome-mobile-top-panel" viewport="mobile" />
+      <DbChrome nodeName="os-chrome-mobile-dock" viewport="mobile" />
     </div>
   );
 }
