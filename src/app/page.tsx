@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { MelliBar } from "./_components/MelliBar";
 import { Taskbar } from "./_components/Taskbar";
 import { Desktop } from "./_components/Desktop";
@@ -12,27 +11,15 @@ import { ModeToggle } from "./_components/ModeToggle";
 import { JourneyTab } from "./_components/JourneyTab";
 import { SignInTab } from "./_components/SignInTab";
 import { BusinessCenter } from "./_components/BusinessCenter";
-import { ChromeNode } from "./_components/ChromeNode";
 import { useWindowStore } from "./_lib/window-store";
 import { useOsMode } from "./_lib/os-mode-store";
 
 export default function OsPage() {
   const windows = useWindowStore((s) => s.windows);
   const mode = useOsMode((s) => s.mode);
+  // Mode drives surface — same for anon and logged-in. BC populates with
+  // DEMO contacts when no real tenant data is loaded.
   const showBusiness = mode === "business";
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia("(max-width: 900px)");
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    setIsMobile(mql.matches);
-    mql.addEventListener("change", handler);
-    return () => {
-      mql.removeEventListener("change", handler);
-    };
-  }, []);
-
   return (
     <div
       data-os-root
@@ -44,7 +31,7 @@ export default function OsPage() {
     >
       <AppOpener />
       <MelliBar />
-      {!isMobile && <ModeToggle />}
+      <ModeToggle />
       {showBusiness ? <BusinessCenter /> : <Desktop />}
       {windows.map((w) => (
         <WindowFrame key={w.id} win={w} />
@@ -54,8 +41,6 @@ export default function OsPage() {
       <SignInTab />
       <JourneyTab />
       <Taskbar />
-      <ChromeNode nodeName="os-shell-mobiletoppanel" viewport="mobile" mountTo="body" />
-      <ChromeNode nodeName="os-shell-mobiledock" viewport="mobile" mountTo="body" />
     </div>
   );
 }
