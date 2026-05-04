@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // output: "standalone" — disabled (Next.js clientReferenceManifest invariant on (public)/page in standalone mode)
   transpilePackages: ["@memelli/ui", "@memelli/types", "@memelli/auth"],
   eslint: {
     ignoreDuringBuilds: true,

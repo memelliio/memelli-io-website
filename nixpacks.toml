@@ -9,11 +9,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "pnpm build",
-  "mkdir -p .next/standalone/.next/server",
-  "cp -r .next/server/. .next/standalone/.next/server/",
-  "cp -r .next/static .next/standalone/.next/static",
-  "cp -r public .next/standalone/public"
+  "pnpm build"
 ]
 
 [variables]
@@ -21,4 +17,4 @@ ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
 ELECTRON_BUILDER_SKIP_DOWNLOAD = "1"
 
 [start]
-cmd = "HOSTNAME=0.0.0.0 PORT=$PORT node .next/standalone/server.js"
+cmd = "HOSTNAME=0.0.0.0 PORT=$PORT pnpm start"
