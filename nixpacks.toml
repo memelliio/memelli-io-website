@@ -2,19 +2,10 @@
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = [
-  "corepack enable",
-  "pnpm install --no-frozen-lockfile --ignore-scripts"
-]
+cmds = ["npm install --omit=dev --no-audit --no-fund"]
 
 [phases.build]
-cmds = [
-  "pnpm build"
-]
-
-[variables]
-ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
-ELECTRON_BUILDER_SKIP_DOWNLOAD = "1"
+cmds = ["echo no-build"]
 
 [start]
-cmd = "HOSTNAME=0.0.0.0 PORT=$PORT pnpm start"
+cmd = "HOSTNAME=0.0.0.0 PORT=$PORT node src/index.js"
