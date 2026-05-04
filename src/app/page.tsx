@@ -13,6 +13,8 @@ import { SignInTab } from "./_components/SignInTab";
 import { BusinessCenter } from "./_components/BusinessCenter";
 import { useWindowStore } from "./_lib/window-store";
 import { useOsMode } from "./_lib/os-mode-store";
+import { DbChrome } from "./_components/DbChrome";
+import { StoreBridgeShim } from "./_lib/os-app-bridge";
 
 export default function OsPage() {
   const windows = useWindowStore((s) => s.windows);
@@ -29,6 +31,7 @@ export default function OsPage() {
         color: "hsl(var(--ink))",
       }}
     >
+      <StoreBridgeShim />
       <AppOpener />
       <MelliBar />
       <ModeToggle />
@@ -41,6 +44,7 @@ export default function OsPage() {
       <SignInTab />
       <JourneyTab />
       <Taskbar />
+      <DbChrome nodeName="os-chrome-modetoggle" />
     </div>
   );
 }
