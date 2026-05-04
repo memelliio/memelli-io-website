@@ -68,6 +68,16 @@ const { Client } = require('pg');
     });
   } catch (e) { /* if orchestrator added a catch-all, skip */ }
 
-  await app.listen({ host: '0.0.0.0', port: PORT });
-  console.log('[shell] listening on ' + PORT);
+  // Listen ONLY if no DB node already started the server (avoid double-listen crash)
+  if (!app.server || !app.server.listening) {
+    try {
+      await app.listen({ host: '0.0.0.0', port: PORT });
+      console.log('[shell] shell-default listen on ' + PORT);
+    } catch (e) {
+      if (/already listening/i.test(e.message)) console.log('[shell] DB node already listening — using its server');
+      else throw e;
+    }
+  } else {
+    console.log('[shell] DB node already listening — using its server');
+  }
 })().catch(err => { console.error('[shell] boot crash:', err && err.stack || err); process.exit(1); });
