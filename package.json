@@ -1,11 +1,9 @@
 {
-  "name": "memelli-io-website",
-  "version": "0.1.0",
+  "name": "memelli-universal-shell",
+  "version": "1.0.0",
   "private": true,
   "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js"
-  },
+  "scripts": { "start": "node src/index.js" },
   "dependencies": {
     "fastify": "^4.28.0",
     "pg": "^8.11.0"
