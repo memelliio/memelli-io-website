@@ -1,6 +1,6 @@
 // Memelli universal shell — minimum viable.
-// Boot → listen immediately → run orchestrator in background.
-// Healthcheck passes the moment listener is up, regardless of node loading state.
+// Orchestrator-first: load all _node_* nodes (which add Fastify hooks/routes), THEN listen.
+// Safe because _node_loader filters by kind='code' (only ~143 nodes per shell, ~5s).
 
 const fastify = require('fastify');
 const { Client } = require('pg');
@@ -16,7 +16,6 @@ const { Client } = require('pg');
   console.log('[shell] schema=' + SCHEMA + ' port=' + PORT);
 
   const app = fastify({ logger: false });
-  app.__ready = false;
   app.routeRegistry = new Map();
 
   const helpers = {
@@ -32,42 +31,43 @@ const { Client } = require('pg');
     },
   };
 
-  // Default /__health — always responds, includes orchestrator readiness
-  app.get('/__health', async () => ({
-    ok: true,
-    schema: SCHEMA,
-    orchestrator_ready: app.__ready,
-    routes_registered: app.routeRegistry.size,
-    ts: new Date().toISOString()
-  }));
-
-  // Catch-all dispatcher — checks routeRegistry per request
-  app.all('/*', async (req, reply) => {
-    const key = req.method + ' ' + req.url.split('?')[0];
-    const handler = app.routeRegistry.get(key);
-    if (!handler) { reply.code(404); return { ok: false, error: 'no_route', key, ready: app.__ready }; }
-    return handler(req, reply);
-  });
-
-  // Listen FIRST so healthcheck passes
-  await app.listen({ host: '0.0.0.0', port: PORT });
-  console.log('[shell] listening on ' + PORT + ' — orchestrator starting in background');
-
-  // Orchestrator runs async — failures here don't kill the listener
-  (async () => {
-    try {
-      const r = await client.query(
-        'SELECT code_text FROM ' + SCHEMA + '.nodes WHERE name=\'_shell_orchestrator\' AND active=true ORDER BY version DESC LIMIT 1'
-      );
-      if (r.rowCount === 0) { console.error('[orchestrator] no _shell_orchestrator node — running shell-only'); return; }
+  // Run orchestrator BEFORE listening so it can decorate, addHook, addRoute
+  try {
+    const r = await client.query(
+      'SELECT code_text FROM ' + SCHEMA + '.nodes WHERE name=\'_shell_orchestrator\' AND active=true ORDER BY version DESC LIMIT 1'
+    );
+    if (r.rowCount === 0) {
+      console.error('[orchestrator] no _shell_orchestrator node — running shell-only');
+    } else {
       const mod = { exports: {} };
       new Function('module', 'exports', 'require', 'app', 'helpers', r.rows[0].code_text)(mod, mod.exports, require, app, helpers);
-      if (typeof mod.exports.register !== 'function') { console.error('[orchestrator] missing register'); return; }
-      await mod.exports.register(app, helpers);
-      app.__ready = true;
-      console.log('[orchestrator] complete · routes=' + app.routeRegistry.size);
-    } catch (e) {
-      console.error('[orchestrator] crash:', e && e.message);
+      if (typeof mod.exports.register === 'function') {
+        await mod.exports.register(app, helpers);
+        console.log('[orchestrator] complete · routeRegistry=' + app.routeRegistry.size);
+      } else {
+        console.error('[orchestrator] missing register');
+      }
     }
-  })();
+  } catch (e) {
+    console.error('[orchestrator] crash:', e && e.message);
+  }
+
+  // Default /__health AFTER orchestrator (orchestrator may have already added one — Fastify will throw if dup, so check first)
+  if (!app.hasRoute || !app.hasRoute({ method: 'GET', url: '/__health' })) {
+    try { app.get('/__health', async () => ({ ok: true, schema: SCHEMA, routes_registered: app.routeRegistry.size, ts: new Date().toISOString() })); }
+    catch (e) { /* already registered */ }
+  }
+
+  // Catch-all dispatcher — consults routeRegistry per request (so DB-resident routes work)
+  try {
+    app.all('/*', async (req, reply) => {
+      const key = req.method + ' ' + req.url.split('?')[0];
+      const handler = app.routeRegistry.get(key);
+      if (!handler) { reply.code(404); return { ok: false, error: 'no_route', key }; }
+      return handler(req, reply);
+    });
+  } catch (e) { /* if orchestrator added a catch-all, skip */ }
+
+  await app.listen({ host: '0.0.0.0', port: PORT });
+  console.log('[shell] listening on ' + PORT);
 })().catch(err => { console.error('[shell] boot crash:', err && err.stack || err); process.exit(1); });
