@@ -47,7 +47,28 @@ export function WindowList() {
 
   return (
     <>
+      {/* Injected styles for the panel */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .memelli-windowlist-panel {
+              max-height: 92vh;
+              overflow-y: auto;
+            }
+            @media (max-width: 600px) {
+              .memelli-windowlist-panel {
+                width: 96vw;
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                bottom: calc(${TASKBAR_H}px + env(safe-area-inset-bottom, 0px));
+              }
+            }
+          `,
+        }}
+      />
       <div
+        className="memelli-windowlist-panel"
         style={{
           position: "fixed",
           left: 0,
@@ -65,9 +86,10 @@ export function WindowList() {
           borderBottom: "1px solid rgba(196,30,58,0.18)",
           zIndex: 99995,
           overflowX: "auto",
-          overflowY: "hidden",
+          overflowY: "auto",
           whiteSpace: "nowrap",
           scrollbarWidth: "thin",
+          maxHeight: "92vh",
         }}
       >
         {windows.map((w) => {
@@ -117,9 +139,7 @@ export function WindowList() {
                 padding: "4px 6px 4px 10px",
                 height: 24,
                 borderRadius: 4,
-                background: isFocused
-                  ? "hsl(var(--background))"
-                  : "transparent",
+                background: isFocused ? "hsl(var(--background))" : "transparent",
                 color: "white",
                 fontSize: 12,
                 cursor: "pointer",

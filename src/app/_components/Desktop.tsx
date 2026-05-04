@@ -255,6 +255,27 @@ export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
         }
       `}</style>
 
+      {/* Responsive panels layout */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .memelli-desktop-panels { display: grid; }
+            @media (max-width: 900px) {
+              .memelli-desktop-panels {
+                grid-template-columns: 1fr !important;
+                grid-auto-flow: row !important;
+                gap: 12px !important;
+              }
+              .memelli-desktop-panels > * {
+                width: 100% !important;
+                min-width: 0 !important;
+              }
+            }
+            dialog { width: min(480px, 96vw) !important; }
+          `,
+        }}
+      />
+
       {/* Top action bar removed — Add Panel lives in the ModeToggle bar. */}
       {false && hydrated && (
         <div
@@ -315,6 +336,7 @@ export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
       {/* Panels row */}
       <div
         ref={rootRef}
+        className="memelli-desktop-panels"
         style={{
           width: "100%",
           height: "100%",

@@ -117,6 +117,24 @@ export function BusinessCenter() {
         overflow: "hidden",
       }}
     >
+      {/* Inject custom CSS for key‑value rows */}
+      <style>{`
+        .memelli-bc-kv {
+          display: grid;
+          grid-template-columns: minmax(120px, 160px) 1fr;
+        }
+        @media (max-width: 600px) {
+          .memelli-bc-kv {
+            grid-template-columns: 1fr;
+            grid-auto-flow: row;
+          }
+          .memelli-bc-kv > span:first-child {
+            font-size: 9px;
+            color: ${MUTED};
+          }
+        }
+      `}</style>
+
       {/* DROPPED: primary business-apps rail. Contacts is the only landing. */}
 
       {/* Contacts is the only landing — Clients/Businesses toggle inside. */}
@@ -1039,9 +1057,8 @@ function FrameRow({
 }) {
   return (
     <div
+      className="memelli-bc-kv"
       style={{
-        display: "grid",
-        gridTemplateColumns: "160px 1fr",
         padding: "10px 12px",
         background: PAPER,
         border: `1px solid ${LINE}`,

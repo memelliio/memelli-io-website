@@ -1,6 +1,5 @@
 "use client";
 
-
 import { PartnerLogo } from "@/app/_components/PartnerLogo";
 import { useEffect, useRef, useState } from "react";
 import { Tv, Radio, Settings as Cog } from "lucide-react";
@@ -218,12 +217,14 @@ export function MelliBar() {
       >
         {/* LEFT — logo + status + heard */}
         <div
+          className="memelli-bar-scroll"
           style={{
             display: "flex",
             alignItems: "center",
             gap: 14,
             flex: 1,
             minWidth: 0,
+            overflowX: "auto",
           }}
         >
           <PartnerLogo alt="Memelli" style={{ height: 64, width: "auto", objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 1px 6px rgba(196,30,58,0.25))" }} />
@@ -345,6 +346,11 @@ export function MelliBar() {
         @keyframes melliPulseDot {
           0%, 100% { opacity: 1; transform: scale(1); }
           50%      { opacity: 0.55; transform: scale(0.85); }
+        }
+      `}</style>
+      <style>{`
+        .memelli-bar-scroll::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </header>

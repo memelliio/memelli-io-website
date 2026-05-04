@@ -10,8 +10,6 @@ import { getPitch, type ModulePitch } from "../../_lib/module-pitches";
 import { ModulePitchModal } from "../ModulePitchModal";
 import { DEMO_CONTACTS, useContactStore } from "../../_lib/contact-store";
 
-const COLS = 4;
-const ICONS_PER_PAGE = 24;
 const LONG_PRESS_MS = 500;
 
 const INK = "#0B0B0F";
@@ -33,6 +31,25 @@ export function MobileHomeScreen() {
   const startX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState(0);
+
+  // Dynamic column count based on viewport width
+  const DEFAULT_COLS = 4;
+  const ROWS = 6; // fixed number of rows per page
+  const [cols, setCols] = useState(DEFAULT_COLS);
+  useEffect(() => {
+    function update() {
+      const w = window.innerWidth;
+      if (w <= 360) setCols(3);
+      else if (w <= 480) setCols(4);
+      else if (w <= 640) setCols(5);
+      else setCols(6);
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const ICONS_PER_PAGE = cols * ROWS;
 
   // Wiggle / edit mode (iPhone home screen edit)
   const [wiggle, setWiggle] = useState(false);
@@ -76,7 +93,7 @@ export function MobileHomeScreen() {
       if (!a.modes || a.modes.length === 0) return true;
       return a.modes.includes(mode);
     });
-  }, [mode, pins]);
+  }, [mode, pins, APPS]);
 
   // Auto-paginate by default; once the user enters wiggle, snapshot a
   // mutable layout (string|null per slot) we can reorder.
@@ -86,7 +103,7 @@ export function MobileHomeScreen() {
       out.push(icons.slice(i, i + ICONS_PER_PAGE));
     }
     return out.length === 0 ? [[]] : out;
-  }, [icons]);
+  }, [icons, ICONS_PER_PAGE]);
 
   // Effective pages — array of (string|null) ids. When layout is null
   // (default state), derive from autoPages.
@@ -388,7 +405,7 @@ export function MobileHomeScreen() {
                 width: `${100 / pages.length}%`,
                 padding: "0 18px",
                 display: "grid",
-                gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+                gridTemplateColumns: `repeat(${cols}, 1fr)`,
                 gap: 18,
                 gridAutoRows: "min-content",
                 alignContent: "start",
