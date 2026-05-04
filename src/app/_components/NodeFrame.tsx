@@ -26,7 +26,7 @@ async function checkAccess(appId: string): Promise<"allowed" | "unauthenticated"
 
 type Cache = { code: string; ts: number };
 const NODE_CACHE: Map<string, Cache> = new Map();
-const TTL_MS = 60_000;
+const TTL_MS = 5_000;
 
 async function fetchNodeCode(name: string): Promise<string | null> {
   const c = NODE_CACHE.get(name);

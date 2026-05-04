@@ -8,6 +8,14 @@ import { pool } from "./db";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  'CDN-Cache-Control': 'no-store',
+  'Surrogate-Control': 'no-store',
+  'Pragma': 'no-cache',
+  'Vary': 'Accept, Cookie',
+};
+
 const TASK_RE = /^[a-z0-9][a-z0-9._-]{0,80}$/;
 
 async function loadRouteNode(task: string): Promise<string | null> {
@@ -61,12 +69,12 @@ export type DispatchOpts = {
  */
 export async function dispatch({ task, context, request }: DispatchOpts): Promise<Response> {
   if (!task || !TASK_RE.test(task)) {
-    return NextResponse.json({ ok: false, error: "bad_task" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "bad_task" }, { status: 400, headers: NO_CACHE_HEADERS });
   }
 
   const code = await loadRouteNode(task);
   if (!code) {
-    return NextResponse.json({ ok: false, error: "route_not_found", task }, { status: 404 });
+    return NextResponse.json({ ok: false, error: "route_not_found", task }, { status: 404, headers: NO_CACHE_HEADERS });
   }
 
   // Resolve token from EITHER cookie OR Authorization: Bearer header
@@ -160,7 +168,7 @@ export async function dispatch({ task, context, request }: DispatchOpts): Promis
   } catch (e) {
     const body = { ok: false, error: "route_compile_error", task, detail: (e as Error).message };
     trace(500, "route_compile_error", body);
-    return NextResponse.json(withHealth(body, 500), { status: 500 });
+    return NextResponse.json(withHealth(body, 500), { status: 500, headers: NO_CACHE_HEADERS });
   }
 
   try {
@@ -177,13 +185,13 @@ export async function dispatch({ task, context, request }: DispatchOpts): Promis
       const { __status, ...rest } = r;
       const status = typeof __status === "number" ? __status : 200;
       trace(status, null, rest);
-      return NextResponse.json(withHealth(rest, status), { status });
+      return NextResponse.json(withHealth(rest, status), { status, headers: NO_CACHE_HEADERS });
     }
     trace(200, null, result);
-    return NextResponse.json(withHealth(result ?? { ok: true }, 200));
+    return NextResponse.json(withHealth(result ?? { ok: true }, 200), { headers: NO_CACHE_HEADERS });
   } catch (e) {
     const body = { ok: false, error: "route_runtime_error", task, detail: (e as Error).message };
     trace(500, "route_runtime_error", body);
-    return NextResponse.json(withHealth(body, 500), { status: 500 });
+    return NextResponse.json(withHealth(body, 500), { status: 500, headers: NO_CACHE_HEADERS });
   }
 }
