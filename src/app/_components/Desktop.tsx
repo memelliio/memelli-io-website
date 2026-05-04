@@ -238,6 +238,23 @@ export function Desktop({ embedded = false }: { embedded?: boolean } = {}) {
             }
       }
     >
+      {/* Inline responsive grid styles */}
+      <style>{`
+        .memelli-desktop-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+          gap: 14px;
+          padding: 16px;
+        }
+        @media (max-width: 480px) {
+          .memelli-desktop-grid {
+            grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+            gap: 10px;
+            padding: 12px;
+          }
+        }
+      `}</style>
+
       {/* Top action bar removed — Add Panel lives in the ModeToggle bar. */}
       {false && hydrated && (
         <div
@@ -444,7 +461,6 @@ function Panel({
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const [cols, setCols] = useState(4);
   const [draftLabel, setDraftLabel] = useState(label);
 
   useEffect(() => setDraftLabel(label), [label, editing]);
@@ -453,11 +469,11 @@ function Panel({
     const el = ref.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      setCols(colsForPanel(el.clientWidth));
+      // No longer needed for column count; kept for potential future use.
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [colsForPanel]);
+  }, []);
 
   return (
     <section
@@ -643,16 +659,7 @@ function Panel({
           WebkitOverflowScrolling: "touch",
         }}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gap: 6,
-            paddingBottom: 16,
-          }}
-        >
-          {children}
-        </div>
+        <div className="memelli-desktop-grid">{children}</div>
       </div>
     </section>
   );

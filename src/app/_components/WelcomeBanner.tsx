@@ -140,6 +140,23 @@ export function WelcomeBanner() {
     zoom: 0.5;
   }
 }
+
+/* Tiles grid responsive layout */
+.memelli-banner-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 900px) {
+  .memelli-banner-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .memelli-banner-tiles {
+    grid-template-columns: 1fr;
+  }
+}
 `,
         }}
       />
@@ -701,22 +718,24 @@ function WorkspaceVisual() {
           One workspace · 50+ modules
         </div>
       </FadeIn>
-      <FadeIn delay={220}>
-        <div
-          style={{
-            fontSize: "clamp(36px, 5vw, 56px)",
-            fontWeight: 900,
-            letterSpacing: "-0.04em",
-            lineHeight: 0.95,
-            color: PAPER,
-          }}
-        >
-          <CountUp to={50} duration={1200} delay={250} />
-          <span style={{ marginLeft: 4, fontSize: "0.55em", fontWeight: 700 }}>
-            modules
-          </span>
-        </div>
-      </FadeIn>
+      <div style={{ overflow: "hidden" }}>
+        <FadeIn delay={220}>
+          <div
+            style={{
+              fontSize: "clamp(36px, 5vw, 56px)",
+              fontWeight: 900,
+              letterSpacing: "-0.04em",
+              lineHeight: 0.95,
+              color: PAPER,
+            }}
+          >
+            <CountUp to={50} duration={1200} delay={250} />
+            <span style={{ marginLeft: 4, fontSize: "0.55em", fontWeight: 700 }}>
+              modules
+            </span>
+          </div>
+        </FadeIn>
+      </div>
       <FadeIn delay={400}>
         <div
           style={{
@@ -726,19 +745,11 @@ function WorkspaceVisual() {
             maxWidth: 320,
           }}
         >
-          One sign-in unlocks every surface. Live state across CRM, funding,
-          credit, content — they all share the same data.
+          One sign-in unlocks the whole business. Live state across CRM, content, calls, video — every module signs in once.
         </div>
       </FadeIn>
 
-      <div
-        style={{
-          marginTop: 8,
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 8,
-        }}
-      >
+      <div className="memelli-banner-tiles" style={{ marginTop: 8 }}>
         <Stagger baseDelay={650} gap={70}>
           {tiles.map((t) => (
             <div
