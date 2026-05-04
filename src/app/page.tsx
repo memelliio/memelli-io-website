@@ -56,7 +56,6 @@ export default function OsPage() {
       <Taskbar />
       <ChromeNode nodeName="os-shell-mobiletoppanel" viewport="mobile" mountTo="body" />
       <ChromeNode nodeName="os-shell-mobiledock" viewport="mobile" mountTo="body" />
-      <ChromeNode nodeName="os-shell-modetoggle" viewport="mobile" mountTo="body" />
     </div>
   );
 }
