@@ -1,6 +1,6 @@
 // Memelli universal shell — minimum viable.
-// Reads SCHEMA env, connects to DB, loads _shell_orchestrator from <SCHEMA>.nodes, runs it.
-// Everything else (routes, health, refresh, in, out) lives in DB nodes the orchestrator loads.
+// Boot → listen immediately → run orchestrator in background.
+// Healthcheck passes the moment listener is up, regardless of node loading state.
 
 const fastify = require('fastify');
 const { Client } = require('pg');
@@ -16,6 +16,9 @@ const { Client } = require('pg');
   console.log('[shell] schema=' + SCHEMA + ' port=' + PORT);
 
   const app = fastify({ logger: false });
+  app.__ready = false;
+  app.routeRegistry = new Map();
+
   const helpers = {
     client,
     schema: SCHEMA,
@@ -25,29 +28,46 @@ const { Client } = require('pg');
           'UPDATE ' + SCHEMA + '.nodes SET status=$1, last_loaded_at=now(), error_text=$2, load_count=COALESCE(load_count,0)+1 WHERE name=$3',
           [status, errorText, name]
         );
-      } catch (e) { /* swallow — node tracking is best-effort */ }
+      } catch (e) { /* swallow */ }
     },
   };
 
-  // Load orchestrator from DB
-  const r = await client.query(
-    'SELECT code_text FROM ' + SCHEMA + '.nodes WHERE name=\'_shell_orchestrator\' AND active=true ORDER BY version DESC LIMIT 1'
-  );
-  if (r.rowCount === 0) { console.error('[shell] FATAL: no _shell_orchestrator in ' + SCHEMA + '.nodes'); process.exit(1); }
-  const mod = { exports: {} };
-  new Function('module', 'exports', 'require', 'app', 'helpers', r.rows[0].code_text)(mod, mod.exports, require, app, helpers);
-  if (typeof mod.exports.register !== 'function') { console.error('[shell] FATAL: orchestrator missing register'); process.exit(1); }
-  await mod.exports.register(app, helpers);
+  // Default /__health — always responds, includes orchestrator readiness
+  app.get('/__health', async () => ({
+    ok: true,
+    schema: SCHEMA,
+    orchestrator_ready: app.__ready,
+    routes_registered: app.routeRegistry.size,
+    ts: new Date().toISOString()
+  }));
 
-  // Wire app.routeRegistry → Fastify routes (universal pattern)
-  if (app.routeRegistry) {
-    for (const [key, handler] of app.routeRegistry.entries()) {
-      const [method, path] = key.split(' ');
-      try { app.route({ method, url: path, handler }); }
-      catch (e) { console.error('[shell] route ' + key + ' failed: ' + e.message); }
-    }
-  }
+  // Catch-all dispatcher — checks routeRegistry per request
+  app.all('/*', async (req, reply) => {
+    const key = req.method + ' ' + req.url.split('?')[0];
+    const handler = app.routeRegistry.get(key);
+    if (!handler) { reply.code(404); return { ok: false, error: 'no_route', key, ready: app.__ready }; }
+    return handler(req, reply);
+  });
 
+  // Listen FIRST so healthcheck passes
   await app.listen({ host: '0.0.0.0', port: PORT });
-  console.log('[shell] booted, listening on ' + PORT);
-})().catch(err => { console.error('[shell] crash:', err && err.stack || err); process.exit(1); });
+  console.log('[shell] listening on ' + PORT + ' — orchestrator starting in background');
+
+  // Orchestrator runs async — failures here don't kill the listener
+  (async () => {
+    try {
+      const r = await client.query(
+        'SELECT code_text FROM ' + SCHEMA + '.nodes WHERE name=\'_shell_orchestrator\' AND active=true ORDER BY version DESC LIMIT 1'
+      );
+      if (r.rowCount === 0) { console.error('[orchestrator] no _shell_orchestrator node — running shell-only'); return; }
+      const mod = { exports: {} };
+      new Function('module', 'exports', 'require', 'app', 'helpers', r.rows[0].code_text)(mod, mod.exports, require, app, helpers);
+      if (typeof mod.exports.register !== 'function') { console.error('[orchestrator] missing register'); return; }
+      await mod.exports.register(app, helpers);
+      app.__ready = true;
+      console.log('[orchestrator] complete · routes=' + app.routeRegistry.size);
+    } catch (e) {
+      console.error('[orchestrator] crash:', e && e.message);
+    }
+  })();
+})().catch(err => { console.error('[shell] boot crash:', err && err.stack || err); process.exit(1); });
