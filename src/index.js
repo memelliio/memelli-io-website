@@ -16,7 +16,18 @@ const { Client } = require('pg');
   console.log('[shell] schema=' + SCHEMA + ' port=' + PORT);
 
   const app = fastify({ logger: false });
-  const helpers = { client, schema: SCHEMA };
+  const helpers = {
+    client,
+    schema: SCHEMA,
+    async markStatus(name, status, errorText = '') {
+      try {
+        await client.query(
+          'UPDATE ' + SCHEMA + '.nodes SET status=$1, last_loaded_at=now(), error_text=$2, load_count=COALESCE(load_count,0)+1 WHERE name=$3',
+          [status, errorText, name]
+        );
+      } catch (e) { /* swallow — node tracking is best-effort */ }
+    },
+  };
 
   // Load orchestrator from DB
   const r = await client.query(
