@@ -7,6 +7,7 @@ import { loadOsTheme, themeToCss, loadOsExtraCss } from '@/lib/os-theme';
 import { RegistryBoot } from './_components/RegistryBoot';
 import './globals.css';
 
+import { DbCss } from "./_components/DbCss";
 export const dynamic = 'force-dynamic';
 
 const inter = Inter({
@@ -98,7 +99,7 @@ export default async function RootLayout({
         <OsBodyClass />
         <RegistryBoot />
         <main id="main">
-          <AuthShell initialPartnerSlug={initialPartnerSlug}>{children}</AuthShell>
+          <AuthShell initialPartnerSlug={initialPartnerSlug}><DbCss />{children}</AuthShell>
         </main>
       </body>
     </html>
